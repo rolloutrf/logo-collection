@@ -22,30 +22,17 @@ body {
 .container {
     width: 900px;
     margin: 0 auto;
-    padding: 0;
+    padding: 32px 0 0;
     box-sizing: border-box;
     position: relative;
-    z-index: 1;
-}
-
-/* GitHub Link */
-.github-link {
-    position: fixed;
-    left: 32px;
-    bottom: 32px;
-    z-index: 1000;
-    color: #bbbbbb;
-    transition: color 0.2s ease;
-}
-
-.github-link:hover {
-    color: #000000;
 }
 
 /* Search Input */
 .search-input {
-    width: 100%;
-    margin: 32px auto;
+    position: fixed;
+    left: 32px;
+    top: 32px;
+    width: 200px;
     padding: 0;
     border: none;
     outline: none;
@@ -54,6 +41,10 @@ body {
     line-height: 24px;
     color: #bbbbbb;
     background: transparent;
+}
+
+.search-input:focus {
+    color: #000000;
 }
 
 /* Categories */
@@ -90,14 +81,6 @@ body {
     border-right: 1px solid #EEEEEE;
     box-sizing: border-box;
     background: #ffffff;
-}
-
-.icon-card:nth-child(5n) {
-    border-right: none;
-}
-
-.icon-card:last-child {
-    border-right: none;
 }
 
 .icon-card:hover .svg-container svg {
@@ -185,4 +168,105 @@ body {
     0% { opacity: 0.6; }
     50% { opacity: 0.3; }
     100% { opacity: 0.6; }
+}
+
+/* GitHub Link */
+.github-link {
+    position: fixed;
+    left: 32px;
+    bottom: 32px;
+    z-index: 1000;
+    color: #bbbbbb;
+    transition: color 0.2s ease;
+}
+
+.github-link:hover {
+    color: #000000;
+}
+
+/* Media Queries */
+@media (max-width: 1024px) {
+    .container {
+        width: 100%;
+        padding: 0;
+    }
+    
+    .header {
+        width: 100%;
+        display: flex;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+    
+    .search-input {
+        position: static;
+        width: 66.66%;
+        margin: 0;
+        padding: 8px;
+    }
+    
+    .github-link {
+        position: static;
+        width: 33.33%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 8px;
+    }
+    
+    .content {
+        margin-top: 16px;
+    }
+    
+    .category-title {
+        padding: 0 16px;
+    }
+    
+    .icons-grid {
+        width: 100%;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+    
+    .icon-card {
+        width: 100%;
+        aspect-ratio: 3/2;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-input {
+        position: static;
+        width: 66.66%;
+        margin: 0;
+        padding: 8px;
+    }
+    
+    .github-link {
+        position: static;
+        width: 33.33%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 8px;
+    }
+    
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .content {
+        width: 100%;
+        order: 2;
+    }
+}
+
+@media (max-width: 480px) {
+    .icons-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+    
+    .icon-card {
+        aspect-ratio: 1/1;
+    }
 } 

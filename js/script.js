@@ -76,8 +76,8 @@ async function fetchSVGFiles() {
 
 function updateTitle(filteredCount = null) {
     document.title = filteredCount !== null
-        ? `Rollout Icons (${filteredCount}/${allSvgFiles.length})`
-        : `Rollout Icons (${allSvgFiles.length})`;
+        ? `Векторная база логотипов (${filteredCount}/${allSvgFiles.length})`
+        : `Векторная база логотипов (${allSvgFiles.length})`;
 }
 
 function showError(message) {
