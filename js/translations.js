@@ -1,5 +1,6 @@
 const folderTranslations = {
-    'finance': 'Финансы'
+    'finance': 'Финансы',
+    'business': 'Бизнес'
 };
 
 const translations = {
@@ -231,5 +232,8 @@ const translations = {
     'yoomoney': ['ЮMoney', 'ЮМани'],
     'zarech': ['Заречье'],
     'zemsky': ['Земский'],
-    'zenit': ['Зенит']
+    'zenit': ['Зенит'],
+    // Категория «Бизнес»
+    'kwork': ['Кворк'],
+    'profi': ['Профи']
 }; 
