@@ -1,6 +1,8 @@
 const folderTranslations = {
     'finance': 'Финансы',
-    'business': 'Бизнес'
+    'business': 'Бизнес',
+    'charity': 'Благотворительность',
+    'clothes': 'Одежда'
 };
 
 const translations = {
@@ -235,5 +237,11 @@ const translations = {
     'zenit': ['Зенит'],
     // Категория «Бизнес»
     'kwork': ['Кворк'],
-    'profi': ['Профи']
-}; 
+    'profi': ['Профи'],
+    // Категория «Благотворительность»
+    'dari-miloserdie': ['Дари милосердие', 'Милосердие'],
+    'gorodskie-proekty': ['Городские проекты'],
+    'podari-zhizn': ['Подари жизнь'],
+    'pomogat-legko': ['Помогать легко'],
+    'soyuz-medsester': ['Союз медсестер']
+};

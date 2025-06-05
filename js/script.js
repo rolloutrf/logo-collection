@@ -106,7 +106,9 @@ function setupSearch() {
 
 async function displaySVGFiles(files) {
     const content = document.querySelector('.content');
+    const nav = document.querySelector('.categories-nav');
     content.innerHTML = '';
+    nav.innerHTML = '';
 
     // Группируем файлы по папкам
     const groupedFiles = files.reduce((acc, file) => {
@@ -118,10 +120,23 @@ async function displaySVGFiles(files) {
         return acc;
     }, {});
 
+    // Создаем меню навигации
+    Object.keys(groupedFiles).forEach(folder => {
+        const link = document.createElement('a');
+        link.href = `#${folder.toLowerCase()}`;
+        link.className = 'category-link';
+        const folderLower = folder.toLowerCase();
+        const folderName = folderTranslations[folderLower] || folder.charAt(0).toUpperCase() + folder.slice(1);
+        const iconCount = groupedFiles[folder].length;
+        link.textContent = `${folderName} (${iconCount})`;
+        nav.appendChild(link);
+    });
+
     // Создаем секции для каждой папки
     Object.keys(groupedFiles).forEach(folder => {
         const section = document.createElement('section');
         section.className = 'category-section';
+        section.id = folder.toLowerCase();
 
         const title = document.createElement('h2');
         title.className = 'category-title';
@@ -141,6 +156,32 @@ async function displaySVGFiles(files) {
         section.appendChild(grid);
         content.appendChild(section);
     });
+
+    // Добавляем обработчик для активного состояния ссылок
+    const links = document.querySelectorAll('.category-link');
+    const sections = document.querySelectorAll('.category-section');
+
+    function updateActiveLink() {
+        const scrollPosition = window.scrollY + 100;
+
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            const sectionId = section.id;
+
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                links.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${sectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }
+
+    window.addEventListener('scroll', updateActiveLink);
+    updateActiveLink();
 }
 
 function createIconCard(file, grid) {
