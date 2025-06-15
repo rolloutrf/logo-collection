@@ -3,7 +3,25 @@ const folderTranslations = {
     'business': 'Бизнес',
     'charity': 'Благотворительность',
     'clothes': 'Одежда',
-    'digital': 'Диджитал'
+    'digital': 'Диджитал',
+    'dining-out': 'Обеды вне дома',
+    'education': 'Образование',
+    'finance': 'Финансы',
+    'fines-and-taxes': 'Штрафы и налоги',
+    'goods': 'Товары',
+    'groceries': 'Продукты',
+    'health': 'Здоровье',
+    'lifestyle': 'Образ жизни',
+    'nspk': 'НСПК',
+    'nspk10': 'НСПК10',
+    'pets': 'Животные',
+    'realty': 'Недвижимость',
+    'repairs': 'Ремонт',
+    'techs': 'Технологии',
+    'telecom': 'Телеком',
+    'transportation': 'Транспорт',
+    'travel': 'Путешествия',
+    'utilities': 'Коммунальные услуги'
 };
 
 const translations = {
@@ -248,7 +266,28 @@ const translations = {
     // Категория «Диджитал»
     'amediateka': ['Амедиатека'],
     'badoo': ['Баду'],
-    'blizzard': ['Близзард, Близард'],
-    'destiny-2': ['Дестини']
-    
+    'blizzard': ['Близзард'],
+    'destiny-2': ['Дестини 2'],
+    'diablo-3': ['Диабло 3', 'Дьябло 3'],
+    'donation-alerts': ['Донейшен Алертс'],
+    'ea': ['Электроник Артс'],
+    'forgame': ['Фогейм', '4Гейм'],
+    'itunes': ['Айтюнс'],
+    'lineage2': ['Линейдж 2', 'Линейка 2'],
+    'nintendo': ['Нинтендо'],
+    'ok': ['Одноклассники'],
+    'origin': ['Ориджин'],
+    'overwatch': ['Овервотч'],
+    'plus-yandex': ['Яндекс Плюс'],
+    'skype': ['Скайп'],
+    'starcraft2': ['Старкрафт 2'],
+    'steam': ['Стим'],
+    'tilda': ['Тильда'],
+    'vk': ['ВКонтакте', 'ВК'],
+    'warcraft': ['Варкрафт'],
+    'warface': ['Варфейс'],
+    'wargaming': ['Варгейминг'],
+    'xbox': ['Иксбокс'],
+    'xsolla': ['Иксолла'],
+    'yandex': ['Яндекс']
 };
