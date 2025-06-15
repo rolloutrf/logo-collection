@@ -2,7 +2,8 @@ const folderTranslations = {
     'finance': 'Финансы',
     'business': 'Бизнес',
     'charity': 'Благотворительность',
-    'clothes': 'Одежда'
+    'clothes': 'Одежда',
+    'digital': 'Диджитал'
 };
 
 const translations = {
@@ -243,5 +244,11 @@ const translations = {
     'gorodskie-proekty': ['Городские проекты'],
     'podari-zhizn': ['Подари жизнь'],
     'pomogat-legko': ['Помогать легко'],
-    'soyuz-medsester': ['Союз медсестер']
+    'soyuz-medsester': ['Союз медсестер'],
+    // Категория «Диджитал»
+    'amediateka': ['Амедиатека'],
+    'badoo': ['Баду'],
+    'blizzard': ['Близзард, Близард'],
+    'destiny-2': ['Дестини']
+    
 };
