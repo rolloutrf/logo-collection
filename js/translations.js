@@ -4,7 +4,7 @@ const folderTranslations = {
     'charity': 'Благотворительность',
     'clothes': 'Одежда',
     'digital': 'Диджитал',
-    'dining-out': 'Обеды вне дома',
+    'dining-out': 'Фастфуд',
     'education': 'Образование',
     'finance': 'Финансы',
     'fines-and-taxes': 'Штрафы и налоги',
@@ -289,5 +289,12 @@ const translations = {
     'wargaming': ['Варгейминг'],
     'xbox': ['Иксбокс'],
     'xsolla': ['Иксолла'],
-    'yandex': ['Яндекс']
+    'yandex': ['Яндекс'],
+    // Категория «Фастфуд»
+    'burger-king': ['БК', 'Бургер Кинг'],
+    'dodo-pizza': ['Додо Пицца'],
+    // Категория «Образование»
+    'geekbrains': ['Гикбрейнс'],
+    'skillbox': ['Скиллбокс'],
+    'skyeng': ['Скайенг']    
 };
