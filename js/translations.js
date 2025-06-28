@@ -20,8 +20,7 @@ const folderTranslations = {
     'techs': 'Технологии',
     'telecom': 'Телеком',
     'transportation': 'Транспорт',
-    'travel': 'Путешествия',
-    'utilities': 'Коммунальные услуги'
+    'travel': 'Путешествия'
 };
 
 const translations = {
@@ -296,5 +295,84 @@ const translations = {
     // Категория «Образование»
     'geekbrains': ['Гикбрейнс'],
     'skillbox': ['Скиллбокс'],
-    'skyeng': ['Скайенг']    
+    'skyeng': ['Скайенг'],
+    // Категория «Налоги»
+    'gosuslugi': ['Госуслуги'],
+    // Категория «Товары»
+    'aliexpress': ['Алиэкспресс'],
+    'askona': ['Аскона'],
+    'hoff': ['Хофф'],
+    'ozon': ['Озон'],
+    'yandex-market': ['Яндекс Маркет'],
+    'youla': ['Юла'],
+    // Категория «Продукты»
+    'av': ['Азбука вкуса'],
+    'deliveryclub': ['Деливери'],
+    'perekrestok': ['Перекрёсток'],
+    'yandex-eda': ['Яндекс Еда'],
+    // Категория «Здоровье»
+    'iherb': ['Айхерб'],
+    'iledebeaute': ['Иль дэ ботэ'],
+    'kerastase': ['Kerastase'],
+    'oriflame': ['Орифлейм'],
+    'rivegauche': ['Рив Гош'],
+    'thebodyshop': ['The Body Shop'],
+    'tonymoly': ['Тони Моли'],
+    'vichyconsult': ['Виши'],
+    // Категория «Образ жизни»
+    'chitai-gorod': ['Читай город'],
+    'kassir': ['Кассир'],
+    'modi': ['Моди'],
+    'sportmaster': ['Спортмастер'],
+    'yandex-afisha': ['Яндекс Афиша'],
+    // Категория «Здоровье»
+    'iherb': ['Айхерб'],
+    'iledebeaute': ['Иль дэ ботэ'],
+    'kerastase': ['Kerastase'],
+    'oriflame': ['Орифлейм'],
+    'rivegauche': ['Рив Гош'],
+    'thebodyshop': ['The Body Shop'],
+    'tonymoly': ['Тони Моли'],
+    'vichyconsult': ['Виши'],
+    // Категория «Недвижимость»
+    'cian': ['Циан'],
+    // Категория «Ремонт»
+    'ikea': ['Икея'],
+    'maxidom': ['Максидом'],
+    // Категория «Технологии»
+    'dns': ['ДНС'],
+    'm-video': ['М.Видео'],
+    'mi-shop': ['Xiaomi'],
+    'philips': ['Филипс'],
+    'technopark': ['Технопарк'],
+    // Категория «Телеком»
+    'airnet': ['Аирнет'],
+    'beeline': ['Билайн'],
+    'dom-ru': ['Дом.ру'],
+    'megafon': ['Мегафон'],
+    'mgts': ['МГТС'],
+    'mts': ['МТС'],
+    'ntv-plus': ['НТВ-Плюс'],
+    'ntv': ['НТВ'],
+    'rostelecom': ['Ростелеком'],
+    'simtravel': ['Симтревел'],
+    'skylink': ['Скайлинк'],
+    'tele2': ['Теле2', 'Т2'],
+    'triсolor-tv': ['Триколор'],
+    'yota': ['Йота'],
+    // Категория «Транспорт»
+    'cdek': ['СДЭК'],
+    'moscow-transport': ['Московский транспорт'],
+    'troika': ['Тройка'],
+    'uber': ['Убер'],
+    'yandex-drive': ['Яндекс Драйв'],
+    'yandex-go': ['Яндекс Го'],
+    'yandex-zapravki': ['Яндекс Заправки'],
+    // Категория «Путешествия»
+    'aviasales': ['Авиасейлс', 'Сало'],
+    'booking': ['Букинг'],
+    'pobeda': ['Победа'],
+    'rzd': ['РЖД'],
+    's7': ['S7'],
+    'utair': ['Ютэйр']
 };
