@@ -8,9 +8,7 @@ import CopyMessage from './components/CopyMessage';
 import { translations } from './translations';
 
 const GITHUB_REPO = 'rolloutrf/logos';
-const GITHUB_BRANCH = 'main';
 const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.github.com';
-const GITHUB_TREE_URL = `${API_BASE}/repos/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}?recursive=1`;
 const GITHUB_HEADERS_BASE: HeadersInit = {
     'Accept': 'application/vnd.github+json',
 };
@@ -36,10 +34,20 @@ function App() {
                   ...GITHUB_HEADERS_BASE,
                   ...(token ? { Authorization: `Bearer ${token}` } : {}),
                 }
-                const response = await fetch(GITHUB_TREE_URL, { headers });
+                // 1) Discover default branch for robustness (main/master/etc.)
+                const repoRes = await fetch(`${API_BASE}/repos/${GITHUB_REPO}`, { headers })
+                if (!repoRes.ok) {
+                  const text = await repoRes.text().catch(() => '')
+                  throw new Error(`Repo meta ${repoRes.status}: ${text || repoRes.statusText}`)
+                }
+                const repoMeta = await repoRes.json()
+                const branch = (repoMeta && repoMeta.default_branch) ? String(repoMeta.default_branch) : 'main'
+
+                // 2) Fetch the full tree of the default branch
+                const response = await fetch(`${API_BASE}/repos/${GITHUB_REPO}/git/trees/${branch}?recursive=1`, { headers });
                 if (!response.ok) {
                     const text = await response.text().catch(() => '')
-                    throw new Error(`GitHub API ${response.status}: ${text || response.statusText}`);
+                    throw new Error(`Tree ${branch} ${response.status}: ${text || response.statusText}`);
                 }
                 const data = await response.json();
                 if (!data || !data.tree || !Array.isArray(data.tree)) {
@@ -53,7 +61,7 @@ function App() {
                     const parts = f.path.split('/')
                     const folder = parts.length > 1 ? parts[0] : 'root'
                     const name = parts[parts.length - 1]
-                    const download_url = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${f.path}`
+                    const download_url = `https://raw.githubusercontent.com/${GITHUB_REPO}/${branch}/${f.path}`
                     return { name, download_url, folder }
                   })
                   .sort((a, b) => a.name.localeCompare(b.name))
@@ -114,7 +122,10 @@ function App() {
                 {loadError ? (
                   <div className="text-sm text-red-500">{loadError}</div>
                 ) : (
-                  <AllIconsSection files={filteredSvgFiles} onCopy={handleCopy} />
+                  <>
+                    <div className="text-xs text-muted-foreground mb-2">Найдено: {filteredSvgFiles.length}</div>
+                    <AllIconsSection files={filteredSvgFiles} onCopy={handleCopy} />
+                  </>
                 )}
             </div>
             </div>
