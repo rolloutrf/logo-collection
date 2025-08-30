@@ -8,14 +8,17 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
+      # ключи сервисного аккаунта ЯО
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_LOGO }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_LOGO }}
+      # для awscli это ок
       AWS_REGION: ru-central1
       AWS_DEFAULT_REGION: ru-central1
       AWS_EC2_METADATA_DISABLED: true
-      AWS_S3_FORCE_PATH_STYLE: true
+
+      # ваши параметры
       S3_ENDPOINT: https://storage.yandexcloud.net
-      S3_BUCKET: xn--80aabn.xn--80avakjqg.xn--p1ai   # лого.роллаут.рф
+      S3_BUCKET: xn--80aabn.xn--80avakjqg.xn--p1ai   # это punycode для лого.роллаут.рф
 
     steps:
       - name: Checkout
@@ -26,21 +29,13 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: Install deps
         run: npm ci
 
-      - name: Build project
+      - name: Build
         run: npm run build
 
-      - name: Debug AWS CLI and connectivity
-        run: |
-          aws --version
-          echo "AccessKeyId length: ${#AWS_ACCESS_KEY_ID}"
-          echo "Secret length: ${#AWS_SECRET_ACCESS_KEY}"
-          echo "Bucket: $S3_BUCKET"
-          echo "Listing bucket root (may fail if creds invalid):"
-          aws s3 ls "s3://$S3_BUCKET/" --endpoint-url "$S3_ENDPOINT" || true
-
+      # Файлы-кеш (css/js/шрифты) — отдаются навсегда
       - name: Upload static assets (immutable)
         run: |
           aws s3 sync ./dist "s3://$S3_BUCKET/" \
@@ -50,6 +45,7 @@ jobs:
             --acl public-read \
             --delete
 
+      # HTML — без кеша
       - name: Upload HTML (no-cache)
         run: |
           aws s3 sync ./dist "s3://$S3_BUCKET/" \
