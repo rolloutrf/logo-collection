@@ -13,6 +13,14 @@ Currently, two official plugins are available:
 - Start: `npm run dev` (or `npm run dev:alt`, `npm run dev:https`)
 - Build: `npm run build` then preview via `npm run preview`
 
+### Sync logos locally
+
+To pull the latest SVGs from `rolloutrf/logos` into this app:
+
+1. Run `npm run sync:logos` (uses `git` if available, otherwise `npx degit`).
+2. It copies all `*.svg` into `src/logos` preserving folder structure.
+3. The app loads local assets automatically (no GitHub network needed in dev).
+
 ## Deployment (GitHub Actions → Yandex Object Storage)
 
 Every push to `main` builds the app and syncs `dist/` to a Yandex S3 bucket via `.github/workflows/build-and-deploy.yml`.

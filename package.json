@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "preview:open": "vite preview --open",
     "preview:alt": "vite preview --port 4174",
-    "preview:https": "DEV_HTTPS=true vite preview"
+    "preview:https": "DEV_HTTPS=true vite preview",
+    "sync:logos": "node scripts/sync-logos.mjs"
   },
   "dependencies": {
     "@radix-ui/react-scroll-area": "^1.2.10",
