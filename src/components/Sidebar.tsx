@@ -5,10 +5,11 @@ import type { SvgFile } from "@/App"
 
 interface SidebarProps {
   groupedFiles: Record<string, SvgFile[]>
+  totalCount?: number
   onSearch: (term: string) => void
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ groupedFiles, onSearch }) => {
+const Sidebar: React.FC<SidebarProps> = ({ groupedFiles, totalCount, onSearch }) => {
   return (
     <aside className="fixed top-16 left-6 w-60">
       <Card>
@@ -16,7 +17,7 @@ const Sidebar: React.FC<SidebarProps> = ({ groupedFiles, onSearch }) => {
           <div className="mb-3">
             <SearchInput onSearch={onSearch} />
           </div>
-          <CategoriesNav groupedFiles={groupedFiles} />
+          <CategoriesNav groupedFiles={groupedFiles} totalCount={totalCount} />
         </CardContent>
       </Card>
     </aside>
@@ -24,4 +25,3 @@ const Sidebar: React.FC<SidebarProps> = ({ groupedFiles, onSearch }) => {
 }
 
 export default Sidebar
-

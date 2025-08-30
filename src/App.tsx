@@ -109,17 +109,12 @@ function App() {
         <>
             <Header />
             <div className="container mx-auto px-6 pt-4">
-            <Sidebar groupedFiles={groupedFiles} onSearch={handleSearch} />
+            <Sidebar groupedFiles={groupedFiles} totalCount={filteredSvgFiles.length} onSearch={handleSearch} />
             <div className="ml-72 mt-4">
                 {loadError ? (
                   <div className="text-sm text-red-500">{loadError}</div>
                 ) : (
-                  <>
-                    <AllIconsSection files={filteredSvgFiles} onCopy={handleCopy} />
-                    <div className="mt-10">
-                      <IconGrid groupedFiles={groupedFiles} onCopy={handleCopy} />
-                    </div>
-                  </>
+                  <AllIconsSection files={filteredSvgFiles} onCopy={handleCopy} />
                 )}
             </div>
             </div>
