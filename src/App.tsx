@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Header from './components/Header';
+import AllIconsGrid from './components/AllIconsGrid';
 import Sidebar from './components/Sidebar';
 import IconGrid from './components/IconGrid';
 // import GithubLink from './components/GithubLink';
@@ -25,6 +26,7 @@ function App() {
     const [filteredSvgFiles, setFilteredSvgFiles] = useState<SvgFile[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [copyMessageVisible, setCopyMessageVisible] = useState(false);
+    const [viewMode, setViewMode] = useState<'all' | 'grouped'>('all');
 
     useEffect(() => {
         const fetchSVGFiles = async () => {
@@ -108,12 +110,16 @@ function App() {
 
     return (
         <>
-            <Header />
+            <Header viewMode={viewMode} onChangeViewMode={setViewMode} />
             <div className="container mx-auto px-6 pt-4">
-            <Sidebar groupedFiles={groupedFiles} onSearch={handleSearch} />
-            <div className="ml-72 mt-4">
-                <IconGrid groupedFiles={groupedFiles} onCopy={handleCopy} />
-            </div>
+              <Sidebar groupedFiles={groupedFiles} onSearch={handleSearch} />
+              <div className="ml-72 mt-4">
+                {viewMode === 'all' ? (
+                  <AllIconsGrid files={filteredSvgFiles} onCopy={handleCopy} />
+                ) : (
+                  <IconGrid groupedFiles={groupedFiles} onCopy={handleCopy} />
+                )}
+              </div>
             </div>
             {/* <GithubLink /> */}
             {copyMessageVisible && <CopyMessage />}
