@@ -17,7 +17,7 @@ const AllIconsSection: React.FC<AllIconsSectionProps> = ({ files, onCopy }) => {
         <span className="text-sm text-muted-foreground">{sorted.length}</span>
       </div>
       <Separator className="mb-3" />
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-4">
         {sorted.map((file) => (
           <IconCard key={`${file.folder}/${file.name}`} file={file} onCopy={onCopy} />
         ))}
@@ -27,4 +27,3 @@ const AllIconsSection: React.FC<AllIconsSectionProps> = ({ files, onCopy }) => {
 }
 
 export default AllIconsSection
-

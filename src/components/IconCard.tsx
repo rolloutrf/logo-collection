@@ -51,15 +51,15 @@ const IconCard: React.FC<IconCardProps> = ({ file, onCopy }) => {
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Card onClick={handleCopy} className="cursor-pointer hover:shadow-md transition-shadow">
-                        <CardContent className="flex items-center justify-center p-3 h-24">
+                        <CardContent className="flex items-center justify-center p-4 aspect-square">
                             {svgContent ? (
-                                <div className="flex items-center justify-center rounded-md p-2 bg-transparent dark:bg-white">
+                                <div className="flex items-center justify-center rounded-md p-2 border border-border bg-card dark:bg-white">
                                   <div className="svg-wrapper" dangerouslySetInnerHTML={{ __html: svgContent }} />
                                 </div>
                             ) : error ? (
                                 <div className="text-red-500">{error}</div>
                             ) : (
-                                <Skeleton className="w-8 h-8 rounded-full" />
+                                <Skeleton className="w-12 h-12 rounded-md" />
                             )}
                         </CardContent>
                     </Card>
