@@ -13,6 +13,7 @@ jobs:
       AWS_REGION: ru-central1
       AWS_DEFAULT_REGION: ru-central1
       AWS_EC2_METADATA_DISABLED: true
+      AWS_S3_FORCE_PATH_STYLE: true
       S3_ENDPOINT: https://storage.yandexcloud.net
       S3_BUCKET: xn--80aabn.xn--80avakjqg.xn--p1ai   # лого.роллаут.рф
 
@@ -30,6 +31,15 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+      - name: Debug AWS CLI and connectivity
+        run: |
+          aws --version
+          echo "AccessKeyId length: ${#AWS_ACCESS_KEY_ID}"
+          echo "Secret length: ${#AWS_SECRET_ACCESS_KEY}"
+          echo "Bucket: $S3_BUCKET"
+          echo "Listing bucket root (may fail if creds invalid):"
+          aws s3 ls "s3://$S3_BUCKET/" --endpoint-url "$S3_ENDPOINT" || true
 
       - name: Upload static assets (immutable)
         run: |
