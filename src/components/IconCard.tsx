@@ -50,7 +50,9 @@ const IconCard: React.FC<IconCardProps> = ({ file, onCopy }) => {
                     <Card onClick={handleCopy} className="cursor-pointer hover:shadow-md transition-shadow">
                         <CardContent className="flex items-center justify-center p-3 h-24">
                             {svgContent ? (
-                                <div className="svg-wrapper" dangerouslySetInnerHTML={{ __html: svgContent }} />
+                                <div className="flex items-center justify-center rounded-md p-2 bg-transparent dark:bg-white">
+                                  <div className="svg-wrapper" dangerouslySetInnerHTML={{ __html: svgContent }} />
+                                </div>
                             ) : error ? (
                                 <div className="text-red-500">{error}</div>
                             ) : (
