@@ -9,9 +9,8 @@ import { translations } from './translations';
 const GITHUB_REPO = 'rolloutrf/logos';
 const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.github.com';
 const GITHUB_API_URL = `${API_BASE}/repos/${GITHUB_REPO}/contents`;
-const GITHUB_HEADERS = {
-    'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'Rollout-Icon-Browser'
+const GITHUB_HEADERS_BASE: HeadersInit = {
+    'Accept': 'application/vnd.github+json',
 };
 
 export interface SvgFile {
@@ -25,11 +24,17 @@ function App() {
     const [filteredSvgFiles, setFilteredSvgFiles] = useState<SvgFile[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [copyMessageVisible, setCopyMessageVisible] = useState(false);
+    const [loadError, setLoadError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchSVGFiles = async () => {
             try {
-                const response = await fetch(GITHUB_API_URL, { headers: GITHUB_HEADERS });
+                const token = (import.meta as any).env?.VITE_GITHUB_TOKEN as string | undefined
+                const headers: HeadersInit = {
+                  ...GITHUB_HEADERS_BASE,
+                  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                }
+                const response = await fetch(GITHUB_API_URL, { headers });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -41,7 +46,7 @@ function App() {
                 const folders = data.filter((item: any) => item.type === 'dir');
                 const svgFilesPromises = folders.map(async (folder: any) => {
                     const folderUrl = folder.url.replace('https://api.github.com', API_BASE);
-                    const folderResponse = await fetch(folderUrl, { headers: GITHUB_HEADERS });
+                    const folderResponse = await fetch(folderUrl, { headers });
                     if (!folderResponse.ok) {
                         console.error(`Error fetching folder ${folder.name}: ${folderResponse.status}`);
                         return [];
@@ -63,8 +68,10 @@ function App() {
                 const svgFiles = (await Promise.all(svgFilesPromises)).flat();
                 setAllSvgFiles(svgFiles);
                 setFilteredSvgFiles(svgFiles);
+                setLoadError(null);
             } catch (error) {
                 console.error('Error fetching SVG files:', error);
+                setLoadError('Не удалось загрузить логотипы. Проверьте соединение или лимит GitHub API.');
             }
         };
 
@@ -112,7 +119,11 @@ function App() {
             <div className="container mx-auto px-6 pt-4">
             <Sidebar groupedFiles={groupedFiles} onSearch={handleSearch} />
             <div className="ml-72 mt-4">
-                <IconGrid groupedFiles={groupedFiles} onCopy={handleCopy} />
+                {loadError ? (
+                  <div className="text-sm text-red-500">{loadError}</div>
+                ) : (
+                  <IconGrid groupedFiles={groupedFiles} onCopy={handleCopy} />
+                )}
             </div>
             </div>
             {/* <GithubLink /> */}
