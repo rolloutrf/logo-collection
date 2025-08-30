@@ -8,7 +8,8 @@ import CopyMessage from './components/CopyMessage';
 import { translations } from './translations';
 
 const GITHUB_REPO = 'rolloutrf/logos';
-const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.github.com';
+const isDev = (import.meta as any).env?.DEV;
+const API_BASE = (import.meta as any).env?.VITE_API_BASE || (isDev ? '/github' : 'https://api.github.com');
 const GITHUB_HEADERS_BASE: HeadersInit = {
     'Accept': 'application/vnd.github+json',
 };
