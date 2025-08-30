@@ -27,7 +27,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to Yandex Object Storage
-        uses: jakejarvis/s3-sync-action@v0.11.0
+        uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --delete --no-progress --acl public-read --endpoint-url https://storage.yandexcloud.net
         env:
