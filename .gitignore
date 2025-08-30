@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 cert/
+vendor/
 
 # Editor directories and files
 .vscode/*
