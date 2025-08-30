@@ -29,7 +29,8 @@ jobs:
         with:
           folder: dist
           bucket: ${{ secrets.S3_BUCKET }}
-          bucket-region: ${{ secrets.AWS_REGION }}
+          bucket-region: 'ru-central1'
+          endpoint: 'https://storage.yandexcloud.net'
           dist-id: rollout
           delete-removed: true
           no-cache: true
