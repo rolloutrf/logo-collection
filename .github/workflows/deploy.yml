@@ -1,22 +1,29 @@
-name: build-and-deploy
+name: Deploy to Yandex Object Storage (logo)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_LOGO }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_LOGO }}
+      AWS_REGION: ru-central1
+      AWS_DEFAULT_REGION: ru-central1
+      AWS_EC2_METADATA_DISABLED: true
+      S3_ENDPOINT: https://storage.yandexcloud.net
+      S3_BUCKET: xn--80aabn.xn--80avakjqg.xn--p1ai   # лого.роллаут.рф
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 18
 
       - name: Install dependencies
         run: npm ci
@@ -24,23 +31,19 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Validate secrets
+      - name: Upload static assets (immutable)
         run: |
-          test -n "$S3_BUCKET" || (echo "Missing secret: S3_BUCKET" && exit 1)
-          test -n "$AWS_ACCESS_KEY_ID" || (echo "Missing secret: AWS_ACCESS_KEY_ID" && exit 1)
-          test -n "$AWS_SECRET_ACCESS_KEY" || (echo "Missing secret: AWS_SECRET_ACCESS_KEY" && exit 1)
-        env:
-          S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws s3 sync ./dist "s3://$S3_BUCKET/" \
+            --endpoint-url "$S3_ENDPOINT" \
+            --exclude "*.html" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --acl public-read \
+            --delete
 
-      - name: Deploy to Yandex Object Storage
-        uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          args: --delete --no-progress --acl public-read --endpoint-url https://storage.yandexcloud.net
-        env:
-          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION || 'ru-central1' }}
-          SOURCE_DIR: 'dist'
+      - name: Upload HTML (no-cache)
+        run: |
+          aws s3 sync ./dist "s3://$S3_BUCKET/" \
+            --endpoint-url "$S3_ENDPOINT" \
+            --exclude "*" --include "*.html" \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --acl public-read
