@@ -16,21 +16,24 @@ const IconCard: React.FC<IconCardProps> = ({ file, onCopy }) => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const loadSVG = async () => {
+        let cancelled = false
+        const load = async () => {
             try {
-                const response = await fetch(file.download_url);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                if (file.content) {
+                    if (!cancelled) setSvgContent(file.content)
+                    return
                 }
-                const svg = await response.text();
-                setSvgContent(svg);
-            } catch (error: any) {
-                setError(error.message);
+                const response = await fetch(file.download_url)
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+                const svg = await response.text()
+                if (!cancelled) setSvgContent(svg)
+            } catch (e: any) {
+                if (!cancelled) setError(e?.message || 'Failed to load SVG')
             }
-        };
-
-        loadSVG();
-    }, [file.download_url]);
+        }
+        load()
+        return () => { cancelled = true }
+    }, [file.download_url, file.content]);
 
     const handleCopy = async () => {
         if (svgContent) {
