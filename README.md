@@ -1,11 +1,28 @@
-# React + TypeScript + Vite
+# Logo Collection — Vite + React + TypeScript
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project renders a searchable collection of brand SVGs grouped by folders and localized names. It uses Vite, React 19, Tailwind CSS v4, and shadcn/ui components.
 
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Development
+
+- Install: `npm ci`
+- Start: `npm run dev` (or `npm run dev:alt`, `npm run dev:https`)
+- Build: `npm run build` then preview via `npm run preview`
+
+## Deployment (GitHub Actions → Yandex Object Storage)
+
+Every push to `main` builds the app and syncs `dist/` to a Yandex S3 bucket via `.github/workflows/build-and-deploy.yml`.
+
+Required configuration:
+- Secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+- Variables (or secrets fallback): `BUCKET_NAME` (punycode), `AWS_REGION` (e.g. `ru-central1`), optional `ENDPOINT_URL`.
+- In the bucket, enable Static Website Hosting with `index.html` as both Index and Error documents.
+
+Your website will be available at `https://<bucket>.website.yandexcloud.net`.
 
 ## Expanding the ESLint configuration
 
