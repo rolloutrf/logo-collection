@@ -1,6 +1,8 @@
-import React from 'react';
+import type React from 'react';
 import { folderTranslations } from '@/translations';
-import { SvgFile } from '../App';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import type { SvgFile } from '../App';
 
 interface CategoriesNavProps {
     groupedFiles: Record<string, SvgFile[]>;
@@ -8,7 +10,8 @@ interface CategoriesNavProps {
 
 const CategoriesNav: React.FC<CategoriesNavProps> = ({ groupedFiles }) => {
     return (
-        <nav className="flex flex-col gap-2 mt-4">
+        <ScrollArea className="h-[calc(100vh-120px)] pr-2 mt-2">
+            <nav className="flex flex-col gap-1 text-sm">
             {Object.keys(groupedFiles).map(folder => {
                 const folderName = folderTranslations[folder.toLowerCase() as keyof typeof folderTranslations] || folder.charAt(0).toUpperCase() + folder.slice(1);
                 const iconCount = groupedFiles[folder].length;
@@ -16,13 +19,15 @@ const CategoriesNav: React.FC<CategoriesNavProps> = ({ groupedFiles }) => {
                     <a
                         key={folder}
                         href={`#${folder.toLowerCase()}`}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="no-underline text-muted-foreground hover:text-foreground flex items-center justify-between rounded-md px-2 py-1 hover:bg-accent"
                     >
-                        {folderName} ({iconCount})
+                        <span className="truncate">{folderName}</span>
+                        <Badge variant="secondary" className="ml-2 shrink-0">{iconCount}</Badge>
                     </a>
                 );
             })}
-        </nav>
+            </nav>
+        </ScrollArea>
     );
 };
 

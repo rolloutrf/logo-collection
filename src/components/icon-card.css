@@ -1,0 +1,12 @@
+.svg-wrapper svg {
+  width: 36px;
+  height: 36px;
+  display: block;
+}
+
+.svg-wrapper img,
+.svg-wrapper svg {
+  max-width: 100%;
+  max-height: 100%;
+}
+

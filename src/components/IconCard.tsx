@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { SvgFile } from '../App';
+import type React from 'react';
+import { useState, useEffect } from 'react';
+import './icon-card.css';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { SvgFile } from '../App';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface IconCardProps {
@@ -40,17 +44,24 @@ const IconCard: React.FC<IconCardProps> = ({ file, onCopy }) => {
     };
 
     return (
-        <Card onClick={handleCopy} className="cursor-pointer">
-            <CardContent className="flex items-center justify-center p-6">
-                {svgContent ? (
-                    <div dangerouslySetInnerHTML={{ __html: svgContent }} />
-                ) : error ? (
-                    <div className="text-red-500">{error}</div>
-                ) : (
-                    <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
-                )}
-            </CardContent>
-        </Card>
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Card onClick={handleCopy} className="cursor-pointer hover:shadow-md transition-shadow">
+                        <CardContent className="flex items-center justify-center p-3 h-24">
+                            {svgContent ? (
+                                <div className="svg-wrapper" dangerouslySetInnerHTML={{ __html: svgContent }} />
+                            ) : error ? (
+                                <div className="text-red-500">{error}</div>
+                            ) : (
+                                <Skeleton className="w-8 h-8 rounded-full" />
+                            )}
+                        </CardContent>
+                    </Card>
+                </TooltipTrigger>
+                <TooltipContent>Нажмите, чтобы скопировать SVG</TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     );
 };
 

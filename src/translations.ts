@@ -278,7 +278,6 @@ export const translations: Record<string, string[] | string> = {
     'starcraft2': ['Старкрафт 2'],
     'steam': ['Стим'],
     'tilda': ['Тильда'],
-.
     'vk': ['ВКонтакте', 'ВК'],
     'warcraft': ['Варкрафт'],
     'warface': ['Варфейс'],

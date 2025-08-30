@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Input } from "@/components/ui/input";
 
 interface SearchInputProps {
@@ -11,7 +11,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch }) => {
             type="text"
             placeholder="Найти иконку..."
             className="w-full"
-            onChange={(e) => onSearch(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearch(e.target.value)}
         />
     );
 };

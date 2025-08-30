@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import SearchInput from './components/SearchInput';
-import CategoriesNav from './components/CategoriesNav';
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import IconGrid from './components/IconGrid';
-import GithubLink from './components/GithubLink';
+// import GithubLink from './components/GithubLink';
 import CopyMessage from './components/CopyMessage';
 import { translations } from './translations';
 
 const GITHUB_REPO = 'rolloutrf/logos';
-const GITHUB_API_URL = `https://api.github.com/repos/${GITHUB_REPO}/contents`;
+const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'https://api.github.com';
+const GITHUB_API_URL = `${API_BASE}/repos/${GITHUB_REPO}/contents`;
 const GITHUB_HEADERS = {
     'Accept': 'application/vnd.github.v3+json',
     'User-Agent': 'Rollout-Icon-Browser'
@@ -39,7 +40,8 @@ function App() {
 
                 const folders = data.filter((item: any) => item.type === 'dir');
                 const svgFilesPromises = folders.map(async (folder: any) => {
-                    const folderResponse = await fetch(folder.url, { headers: GITHUB_HEADERS });
+                    const folderUrl = folder.url.replace('https://api.github.com', API_BASE);
+                    const folderResponse = await fetch(folderUrl, { headers: GITHUB_HEADERS });
                     if (!folderResponse.ok) {
                         console.error(`Error fetching folder ${folder.name}: ${folderResponse.status}`);
                         return [];
@@ -105,17 +107,17 @@ function App() {
 
 
     return (
-        <div className="container mx-auto p-8">
-            <div className="fixed top-8 left-8">
-                <SearchInput onSearch={handleSearch} />
-                <CategoriesNav groupedFiles={groupedFiles} />
-            </div>
-            <div className="ml-64">
+        <>
+            <Header />
+            <div className="container mx-auto px-6 pt-4">
+            <Sidebar groupedFiles={groupedFiles} onSearch={handleSearch} />
+            <div className="ml-72 mt-4">
                 <IconGrid groupedFiles={groupedFiles} onCopy={handleCopy} />
             </div>
-            <GithubLink />
+            </div>
+            {/* <GithubLink /> */}
             {copyMessageVisible && <CopyMessage />}
-        </div>
+        </>
     );
 }
 
