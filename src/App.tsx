@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import IconGrid from './components/IconGrid';
+import AllIconsSection from './components/AllIconsSection';
 // import GithubLink from './components/GithubLink';
 import CopyMessage from './components/CopyMessage';
 import { translations } from './translations';
@@ -113,7 +114,12 @@ function App() {
                 {loadError ? (
                   <div className="text-sm text-red-500">{loadError}</div>
                 ) : (
-                  <IconGrid groupedFiles={groupedFiles} onCopy={handleCopy} />
+                  <>
+                    <AllIconsSection files={filteredSvgFiles} onCopy={handleCopy} />
+                    <div className="mt-10">
+                      <IconGrid groupedFiles={groupedFiles} onCopy={handleCopy} />
+                    </div>
+                  </>
                 )}
             </div>
             </div>
