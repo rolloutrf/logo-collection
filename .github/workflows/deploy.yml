@@ -41,6 +41,9 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Sync logos from rolloutrf/logos
+        run: npm run sync:logos
+
       # Если у тебя Vite/CRA — оставь просто build
       # Если Next с экспортом — убедиcь, что из build выходит ./dist (или поменяй путь ниже)
       - name: Build
