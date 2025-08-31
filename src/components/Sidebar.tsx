@@ -1,15 +1,12 @@
 import SearchInput from "@/components/SearchInput"
 import CategoriesNav from "@/components/CategoriesNav"
 import { Card, CardContent } from "@/components/ui/card"
-import type { SvgFile } from "@/App"
-
 interface SidebarProps {
-  groupedFiles: Record<string, SvgFile[]>
   totalCount?: number
   onSearch: (term: string) => void
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ groupedFiles, totalCount, onSearch }) => {
+const Sidebar: React.FC<SidebarProps> = ({ totalCount, onSearch }) => {
   return (
     <aside className="fixed top-16 left-6 w-60">
       <Card>
@@ -17,7 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({ groupedFiles, totalCount, onSearch })
           <div className="mb-3">
             <SearchInput onSearch={onSearch} />
           </div>
-          <CategoriesNav groupedFiles={groupedFiles} totalCount={totalCount} />
+          <CategoriesNav totalCount={totalCount} />
         </CardContent>
       </Card>
     </aside>

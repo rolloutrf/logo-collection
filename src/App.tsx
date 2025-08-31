@@ -134,7 +134,7 @@ function App() {
         <>
             <Header />
             <div className="container mx-auto px-6 pt-4">
-            <Sidebar groupedFiles={groupedFiles} totalCount={filteredSvgFiles.length} onSearch={handleSearch} />
+            <Sidebar totalCount={filteredSvgFiles.length} onSearch={handleSearch} />
             <div className="ml-72 mt-4">
                 {loadError ? (
                   <div className="text-sm text-red-500">{loadError}</div>
