@@ -19,7 +19,17 @@ const AllIconsSection: React.FC<AllIconsSectionProps> = ({ files, onCopy }) => {
       <Separator className="mb-3" />
       <div className="w-full" style={{ columnWidth: 180, columnGap: '1.25rem' }}>
         {sorted.map((file) => (
-          <div key={`${file.folder}/${file.name}`} style={{ breakInside: 'avoid' }} className="mb-6">
+          <div
+            key={`${file.folder}/${file.name}`}
+            style={{
+              breakInside: 'avoid',
+              WebkitColumnBreakInside: 'avoid',
+              pageBreakInside: 'avoid',
+              display: 'inline-block',
+              width: '100%'
+            }}
+            className="mb-8"
+          >
             <IconCard file={file} onCopy={onCopy} />
           </div>
         ))}
