@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import IconGrid from './components/IconGrid';
 import AllIconsSection from './components/AllIconsSection';
+import { ThemeToggle } from './components/ThemeToggle';
 // import GithubLink from './components/GithubLink';
 import CopyMessage from './components/CopyMessage';
 import { translations } from './translations';
@@ -138,6 +139,9 @@ function App() {
               ) : (
                 <AllIconsSection files={filteredSvgFiles} onCopy={handleCopy} />
               )}
+            </div>
+            <div className="fixed bottom-4 right-4 z-50">
+              <ThemeToggle />
             </div>
             {copyMessageVisible && <CopyMessage />}
         </>
