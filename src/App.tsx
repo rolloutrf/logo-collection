@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import IconGrid from './components/IconGrid';
 import AllIconsSection from './components/AllIconsSection';
 import { ThemeToggle } from './components/ThemeToggle';
 // import GithubLink from './components/GithubLink';
 import CopyMessage from './components/CopyMessage';
-import { translations } from './translations';
 
 const GITHUB_REPO = 'rolloutrf/logos';
 const isDev = (import.meta as any).env?.DEV;
@@ -25,7 +21,6 @@ export interface SvgFile {
 function App() {
     const [allSvgFiles, setAllSvgFiles] = useState<SvgFile[]>([]);
     const [filteredSvgFiles, setFilteredSvgFiles] = useState<SvgFile[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
     const [copyMessageVisible, setCopyMessageVisible] = useState(false);
     const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -96,23 +91,10 @@ function App() {
         loadLocalOrRemote();
     }, []);
 
+    // When source changes, show everything (no search UI now)
     useEffect(() => {
-        const lowercasedSearchTerm = searchTerm.toLowerCase();
-        const filtered = allSvgFiles.filter(file => {
-            const fileName = file.name.toLowerCase();
-            const folderName = file.folder.toLowerCase();
-            const baseName = file.name.replace('.svg', '').toLowerCase();
-            const russianNames = translations[baseName as keyof typeof translations] as string[];
-            return fileName.includes(lowercasedSearchTerm) ||
-                   folderName.includes(lowercasedSearchTerm) ||
-                   (russianNames && russianNames.some(name => name.toLowerCase().includes(lowercasedSearchTerm)));
-        });
-        setFilteredSvgFiles(filtered);
-    }, [searchTerm, allSvgFiles]);
-
-    const handleSearch = (term: string) => {
-        setSearchTerm(term);
-    };
+        setFilteredSvgFiles(allSvgFiles)
+    }, [allSvgFiles])
 
     const handleCopy = () => {
         setCopyMessageVisible(true);
@@ -120,16 +102,6 @@ function App() {
             setCopyMessageVisible(false);
         }, 2000);
     };
-
-    const groupedFiles = filteredSvgFiles.reduce((acc, file) => {
-        const folder = file.folder;
-        if (!acc[folder]) {
-            acc[folder] = [];
-        }
-        acc[folder].push(file);
-        return acc;
-    }, {} as Record<string, SvgFile[]>);
-
 
     return (
         <>
