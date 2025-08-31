@@ -28,7 +28,7 @@ const AllIconsSection: React.FC<AllIconsSectionProps> = ({ files, onCopy }) => {
               display: 'inline-block',
               width: '100%'
             }}
-            className="mb-8"
+            className="mb-16"
           >
             <IconCard file={file} onCopy={onCopy} />
           </div>
