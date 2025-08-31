@@ -17,12 +17,11 @@ const AllIconsSection: React.FC<AllIconsSectionProps> = ({ files, onCopy }) => {
         <span className="text-sm text-muted-foreground">{sorted.length}</span>
       </div>
       <Separator className="mb-3" />
-      <div
-        className="grid gap-5"
-        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))' }}
-      >
+      <div className="w-full" style={{ columnWidth: 180, columnGap: '1.25rem' }}>
         {sorted.map((file) => (
-          <IconCard key={`${file.folder}/${file.name}`} file={file} onCopy={onCopy} />
+          <div key={`${file.folder}/${file.name}`} style={{ breakInside: 'avoid' }} className="mb-5">
+            <IconCard file={file} onCopy={onCopy} />
+          </div>
         ))}
       </div>
     </section>
