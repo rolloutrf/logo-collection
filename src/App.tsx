@@ -132,21 +132,13 @@ function App() {
 
     return (
         <>
-            <Header />
-            <div className="container mx-auto px-6 pt-4">
-            <Sidebar totalCount={filteredSvgFiles.length} onSearch={handleSearch} />
-            <div className="ml-72 mt-4">
-                {loadError ? (
-                  <div className="text-sm text-red-500">{loadError}</div>
-                ) : (
-                  <>
-                    <div className="text-xs text-muted-foreground mb-2">Найдено: {filteredSvgFiles.length}</div>
-                    <AllIconsSection files={filteredSvgFiles} onCopy={handleCopy} />
-                  </>
-                )}
+            <div className="container mx-auto px-6 py-6">
+              {loadError ? (
+                <div className="text-sm text-red-500">{loadError}</div>
+              ) : (
+                <AllIconsSection files={filteredSvgFiles} onCopy={handleCopy} />
+              )}
             </div>
-            </div>
-            {/* <GithubLink /> */}
             {copyMessageVisible && <CopyMessage />}
         </>
     );
