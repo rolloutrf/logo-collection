@@ -20,7 +20,7 @@ jobs:
 
     env:
       # ---- S3 / Yandex ----
-      S3_BUCKET: xn--80aabn.xn--80avakjqg.xn--p1ai   # punycode для лого.роллаут.рф
+      S3_BUCKET: xn--c1apjb.xn--80avakjqg.xn--p1ai   # punycode для лого.роллаут.рф
       S3_ENDPOINT: https://storage.yandexcloud.net
 
       # ---- AWS creds из Repository secrets ----
