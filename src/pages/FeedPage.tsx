@@ -1,10 +1,26 @@
 import { useState, useEffect } from 'react';
+import type { SvgFile } from '@/types';
+import { translations, folderTranslations } from '@/translations';
 
-interface SvgFile {
-    name: string;
-    download_url: string;
-    folder: string;
-    content?: string;
+const GITHUB_REPO = 'rolloutrf/logos';
+const isDev = (import.meta as any).env?.DEV;
+const API_BASE = (import.meta as any).env?.VITE_API_BASE || (isDev ? '/github' : 'https://api.github.com');
+const GITHUB_HEADERS_BASE: HeadersInit = {
+    'Accept': 'application/vnd.github+json',
+};
+
+// Helper for searching Russian translations
+function matchesRussianName(fileName: string, searchTerm: string): boolean {
+    const baseName = fileName.replace('.svg', '').toLowerCase();
+    const searchLower = searchTerm.toLowerCase();
+    const names = translations[baseName];
+    if (!names) return false;
+    if (Array.isArray(names)) {
+        return names.some(translation => 
+            translation.toLowerCase().includes(searchLower)
+        );
+    }
+    return names.toLowerCase().includes(searchLower);
 }
 
 const FeedPage = () => {
@@ -15,39 +31,75 @@ const FeedPage = () => {
     const [copyMessageVisible, setCopyMessageVisible] = useState(false);
 
     useEffect(() => {
-        const loadSvgFiles = async () => {
+        const loadLocalOrRemote = async () => {
             try {
-                const localModules = import.meta.glob('../logos/**/*.svg', { as: 'raw', eager: true }) as Record<string, string>;
+                // Try local bundle first (uses Vite import.meta.glob); falls back to GitHub if empty
+                const localModules = import.meta.glob('../logos/**/*.svg', { as: 'raw', eager: true }) as Record<string, string>
+                let svgFiles: SvgFile[] = []
                 if (localModules && Object.keys(localModules).length > 0) {
-                    const svgFiles: SvgFile[] = Object.entries(localModules).map(([path, content]) => {
-                        const parts = path.split('/');
-                        const name = parts[parts.length - 1];
-                        const folder = parts.length > 3 ? parts[2] : 'root';
-                        return {
-                            name,
-                            folder,
-                            download_url: path,
-                            content,
-                        };
-                    });
-                    
-                    const sortedFiles = svgFiles.sort((a, b) => a.name.localeCompare(b.name));
-                    setAllSvgFiles(sortedFiles);
-                    
-                    // Create categories
-                    const categoriesSet = new Set(sortedFiles.map(file => file.folder));
-                    const categoriesList = Array.from(categoriesSet).map(folder => ({
-                        id: folder.toLowerCase(),
-                        name: folder
-                    })).sort((a, b) => a.name.localeCompare(b.name));
-                    setCategories(categoriesList);
+                  svgFiles = Object.entries(localModules).map(([path, content]) => {
+                    // path like '../logos/<folder>/file.svg'
+                    const parts = path.split('/')
+                    const name = parts[parts.length - 1]
+                    const folder = parts.length > 3 ? parts[2] : 'root'
+                    return {
+                      name,
+                      folder,
+                      download_url: path, // not used for local, but kept for type compatibility
+                      content,
+                    }
+                  })
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                } else {
+                  const token = (import.meta as any).env?.VITE_GITHUB_TOKEN as string | undefined
+                  const headers: HeadersInit = {
+                    ...GITHUB_HEADERS_BASE,
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                  }
+                  const repoRes = await fetch(`${API_BASE}/repos/${GITHUB_REPO}`, { headers })
+                  if (!repoRes.ok) {
+                    const text = await repoRes.text().catch(() => '')
+                    throw new Error(`Repo meta ${repoRes.status}: ${text || repoRes.statusText}`)
+                  }
+                  const repoMeta = await repoRes.json()
+                  const branch = (repoMeta && repoMeta.default_branch) ? String(repoMeta.default_branch) : 'main'
+                  const response = await fetch(`${API_BASE}/repos/${GITHUB_REPO}/git/trees/${branch}?recursive=1`, { headers });
+                  if (!response.ok) {
+                      const text = await response.text().catch(() => '')
+                      throw new Error(`Tree ${branch} ${response.status}: ${text || response.statusText}`);
+                  }
+                  const data = await response.json();
+                  if (!data || !data.tree || !Array.isArray(data.tree)) {
+                      throw new Error('Invalid data from GitHub API (tree)');
+                  }
+                  const files = data.tree as Array<{ path: string; type: string }>;
+                  svgFiles = files
+                    .filter((f) => f.type === 'blob' && f.path.endsWith('.svg'))
+                    .map((f) => {
+                      const parts = f.path.split('/')
+                      const folder = parts.length > 1 ? parts[0] : 'root'
+                      const name = parts[parts.length - 1]
+                      const download_url = `https://raw.githubusercontent.com/${GITHUB_REPO}/${branch}/${f.path}`
+                      return { name, download_url, folder }
+                    })
+                    .sort((a, b) => a.name.localeCompare(b.name))
                 }
+
+                setAllSvgFiles(svgFiles);
+                
+                // Create categories
+                const categoriesSet = new Set(svgFiles.map(file => file.folder));
+                const categoriesList = Array.from(categoriesSet).map(folder => ({
+                    id: folder.toLowerCase(),
+                    name: folderTranslations[folder.toLowerCase()] || folder
+                })).sort((a, b) => a.name.localeCompare(b.name));
+                setCategories(categoriesList);
             } catch (error) {
-                console.error('Error loading SVG files:', error);
+                console.error('Error fetching SVG files:', error);
             }
         };
 
-        loadSvgFiles();
+        loadLocalOrRemote();
     }, []);
 
     useEffect(() => {
@@ -55,9 +107,14 @@ const FeedPage = () => {
         const filtered = allSvgFiles.filter(file => {
             const fileName = file.name.toLowerCase();
             const folderName = file.folder.toLowerCase();
-            return fileName.includes(searchLower) || folderName.includes(searchLower);
+            return fileName.includes(searchLower) ||
+                   folderName.includes(searchLower) ||
+                   matchesRussianName(file.name, searchTerm);
         });
         setFilteredSvgFiles(filtered);
+        document.title = searchTerm 
+            ? `Логотипы (${filtered.length}/${allSvgFiles.length})`
+            : `Векторная база логотипов (${allSvgFiles.length})`;
     }, [searchTerm, allSvgFiles]);
 
     const handleIconClick = async (file: SvgFile) => {
