@@ -195,8 +195,8 @@ const FeedPage = () => {
 
                 /* Layout */
                 .container {
-                    width: 100%;
-                    margin: 0;
+                    width: 900px;
+                    margin: 0 auto;
                     padding: 32px 0 0;
                     box-sizing: border-box;
                     position: relative;
@@ -246,14 +246,14 @@ const FeedPage = () => {
                 /* Icons Grid */
                 .icons-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                    grid-template-columns: repeat(5, 180px);
                     gap: 0;
-                    width: 100%;
-                    margin: 0;
+                    width: 900px;
+                    margin: 0 auto;
                 }
 
                 .icon-card {
-                    width: 100%;
+                    width: 180px;
                     height: 120px;
                     display: flex;
                     align-items: center;
