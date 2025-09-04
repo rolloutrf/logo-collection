@@ -3,8 +3,6 @@ import type { SvgFile } from '@/types';
 import { translations, folderTranslations } from '@/translations';
 
 const GITHUB_REPO = 'rolloutrf/logos';
-const isDev = (import.meta as any).env?.DEV;
-const API_BASE = (import.meta as any).env?.VITE_API_BASE || (isDev ? '/github' : 'https://api.github.com');
 const GITHUB_HEADERS_BASE: HeadersInit = {
     'Accept': 'application/vnd.github+json',
 };
@@ -31,58 +29,53 @@ const FeedPage = () => {
     const [copyMessageVisible, setCopyMessageVisible] = useState(false);
 
     useEffect(() => {
-        const loadLocalOrRemote = async () => {
+        const loadLogos = async () => {
             try {
-                // Try local bundle first (uses Vite import.meta.glob); falls back to GitHub if empty
-                const localModules = import.meta.glob('../logos/**/*.svg', { as: 'raw', eager: true }) as Record<string, string>
-                let svgFiles: SvgFile[] = []
-                if (localModules && Object.keys(localModules).length > 0) {
-                  svgFiles = Object.entries(localModules).map(([path, content]) => {
-                    // path like '../logos/<folder>/file.svg'
-                    const parts = path.split('/')
-                    const name = parts[parts.length - 1]
-                    const folder = parts.length > 3 ? parts[2] : 'root'
-                    return {
-                      name,
-                      folder,
-                      download_url: path, // not used for local, but kept for type compatibility
-                      content,
+                // Try to load manifest from public folder first
+                let svgFiles: SvgFile[] = [];
+                
+                try {
+                    // Try to fetch logos manifest from public folder
+                    const manifestResponse = await fetch('/logos-manifest.json');
+                    if (manifestResponse.ok) {
+                        const manifest = await manifestResponse.json();
+                        svgFiles = manifest.map((item: any) => ({
+                            name: item.name,
+                            folder: item.folder,
+                            download_url: `/logos/${item.folder}/${item.name}`,
+                            content: undefined // Will be loaded when clicked
+                        })).sort((a: SvgFile, b: SvgFile) => a.name.localeCompare(b.name));
                     }
-                  })
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                } else {
-                  const token = (import.meta as any).env?.VITE_GITHUB_TOKEN as string | undefined
-                  const headers: HeadersInit = {
-                    ...GITHUB_HEADERS_BASE,
-                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                  }
-                  const repoRes = await fetch(`${API_BASE}/repos/${GITHUB_REPO}`, { headers })
-                  if (!repoRes.ok) {
-                    const text = await repoRes.text().catch(() => '')
-                    throw new Error(`Repo meta ${repoRes.status}: ${text || repoRes.statusText}`)
-                  }
-                  const repoMeta = await repoRes.json()
-                  const branch = (repoMeta && repoMeta.default_branch) ? String(repoMeta.default_branch) : 'main'
-                  const response = await fetch(`${API_BASE}/repos/${GITHUB_REPO}/git/trees/${branch}?recursive=1`, { headers });
-                  if (!response.ok) {
-                      const text = await response.text().catch(() => '')
-                      throw new Error(`Tree ${branch} ${response.status}: ${text || response.statusText}`);
-                  }
-                  const data = await response.json();
-                  if (!data || !data.tree || !Array.isArray(data.tree)) {
-                      throw new Error('Invalid data from GitHub API (tree)');
-                  }
-                  const files = data.tree as Array<{ path: string; type: string }>;
-                  svgFiles = files
-                    .filter((f) => f.type === 'blob' && f.path.endsWith('.svg'))
-                    .map((f) => {
-                      const parts = f.path.split('/')
-                      const folder = parts.length > 1 ? parts[0] : 'root'
-                      const name = parts[parts.length - 1]
-                      const download_url = `https://raw.githubusercontent.com/${GITHUB_REPO}/${branch}/${f.path}`
-                      return { name, download_url, folder }
-                    })
-                    .sort((a, b) => a.name.localeCompare(b.name))
+                } catch (e) {
+                    console.log('No manifest found, trying GitHub API fallback');
+                }
+                
+                // Fallback to GitHub API if no local files or manifest
+                if (svgFiles.length === 0) {
+                    const token = (import.meta as any).env?.VITE_GITHUB_TOKEN as string | undefined;
+                    const headers: HeadersInit = {
+                        ...GITHUB_HEADERS_BASE,
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    };
+                    const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1`, { headers });
+                    if (!response.ok) {
+                        throw new Error(`GitHub API ${response.status}: ${response.statusText}`);
+                    }
+                    const data = await response.json();
+                    if (!data || !data.tree || !Array.isArray(data.tree)) {
+                        throw new Error('Invalid data from GitHub API (tree)');
+                    }
+                    const files = data.tree as Array<{ path: string; type: string }>;
+                    svgFiles = files
+                        .filter((f) => f.type === 'blob' && f.path.endsWith('.svg'))
+                        .map((f) => {
+                            const parts = f.path.split('/');
+                            const folder = parts.length > 1 ? parts[0] : 'root';
+                            const name = parts[parts.length - 1];
+                            const download_url = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${f.path}`;
+                            return { name, download_url, folder };
+                        })
+                        .sort((a, b) => a.name.localeCompare(b.name));
                 }
 
                 setAllSvgFiles(svgFiles);
@@ -95,11 +88,11 @@ const FeedPage = () => {
                 })).sort((a, b) => a.name.localeCompare(b.name));
                 setCategories(categoriesList);
             } catch (error) {
-                console.error('Error fetching SVG files:', error);
+                console.error('Error loading SVG files:', error);
             }
         };
 
-        loadLocalOrRemote();
+        loadLogos();
     }, []);
 
     useEffect(() => {
