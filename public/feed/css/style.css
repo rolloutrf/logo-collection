@@ -1,0 +1,345 @@
+/* Reset */
+h1, h2, h3, h4, h5, h6, p, ul, li {
+    margin: 0;
+    padding: 0;
+}
+
+/* Base */
+html {
+    height: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    font-family: 'JetBrains Mono', monospace;
+    background: #EEEEEE;
+}
+
+/* Layout */
+.container {
+    width: 900px;
+    margin: 0 auto;
+    padding: 32px 0 0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* Search Input */
+.search-input {
+    position: fixed;
+    left: 32px;
+    top: 32px;
+    width: 200px;
+    padding: 0;
+    border: none;
+    outline: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    line-height: 24px;
+    color: #bbbbbb;
+    background: transparent;
+}
+
+.search-input:focus {
+    color: #000000;
+}
+
+/* Categories */
+.category-section {
+    margin-bottom: 40px;
+}
+
+.category-title {
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 32px;
+    margin-bottom: 24px;
+    color: #000000;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Icons Grid */
+.icons-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 180px);
+    gap: 0;
+    width: 900px;
+    margin: 0 auto;
+}
+
+.icon-card {
+    width: 180px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-bottom: 1px solid #EEEEEE;
+    border-right: 1px solid #EEEEEE;
+    box-sizing: border-box;
+    background: #ffffff;
+}
+
+.icon-card:hover .svg-container svg {
+    transform: translateY(-2px);
+}
+
+/* SVG Container */
+.svg-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.svg-container svg {
+    max-width: 100%;
+    max-height: 100%;
+    transition: transform 0.2s ease;
+}
+
+/* Loading and Error States */
+.svg-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    animation: pulse 1.5s infinite;
+}
+
+.error-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff6b6b;
+    margin: auto;
+}
+
+.error-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Copy Message */
+.copy-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.copy-message.visible {
+    opacity: 1;
+}
+
+.copy-message::before {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0.6; }
+}
+
+/* GitHub Link */
+.github-link {
+    position: fixed;
+    left: 32px;
+    bottom: 32px;
+    z-index: 1000;
+    color: #bbbbbb;
+    transition: color 0.2s ease;
+}
+
+.github-link:hover {
+    color: #000000;
+}
+
+/* Categories Navigation */
+.categories-nav {
+    position: fixed;
+    left: 32px;
+    top: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.categories-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.categories-nav::-webkit-scrollbar-track {
+    background: #EEEEEE;
+}
+
+.categories-nav::-webkit-scrollbar-thumb {
+    background: #bbbbbb;
+    border-radius: 2px;
+}
+
+.categories-nav::-webkit-scrollbar-thumb:hover {
+    background: #999999;
+}
+
+.category-link {
+    color: #bbbbbb;
+    text-decoration: none;
+    font-size: 16px;
+    line-height: 24px;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+}
+
+.category-link:hover {
+    color: #000000;
+}
+
+.category-link.active {
+    color: #000000;
+}
+
+/* Media Queries */
+@media (max-width: 1024px) {
+    .container {
+        width: 100%;
+        padding: 0;
+    }
+    
+    .header {
+        width: 100%;
+        display: flex;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+    
+    .search-input {
+        position: static;
+        width: 66.66%;
+        margin: 0;
+        padding: 8px;
+    }
+    
+    .github-link {
+        position: static;
+        width: 33.33%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 8px;
+    }
+    
+    .content {
+        margin-top: 16px;
+    }
+    
+    .category-title {
+        padding: 0 16px;
+    }
+    
+    .icons-grid {
+        width: 100%;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+    
+    .icon-card {
+        width: 100%;
+        aspect-ratio: 3/2;
+    }
+    
+    .categories-nav {
+        position: static;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 16px;
+        padding: 16px;
+        max-height: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .categories-nav::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .category-link {
+        padding: 0;
+        background: transparent;
+        border-radius: 4px;
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-input {
+        position: static;
+        width: 66.66%;
+        margin: 0;
+        padding: 8px;
+    }
+    
+    .github-link {
+        position: static;
+        width: 33.33%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 8px;
+    }
+    
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .content {
+        width: 100%;
+        order: 2;
+    }
+}
+
+@media (max-width: 480px) {
+    .icons-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+    
+    .icon-card {
+        aspect-ratio: 1/1;
+    }
+} 
