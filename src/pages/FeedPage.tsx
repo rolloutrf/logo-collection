@@ -34,20 +34,29 @@ const FeedPage = () => {
                 // Try to load manifest from public folder first
                 let svgFiles: SvgFile[] = [];
                 
+                console.log('🚀 Starting to load logos...');
+                
                 try {
                     // Try to fetch logos manifest from public folder
+                    console.log('📁 Trying to fetch manifest from /logos-manifest.json');
                     const manifestResponse = await fetch('/logos-manifest.json');
+                    console.log('📁 Manifest response:', manifestResponse.status, manifestResponse.ok);
+                    
                     if (manifestResponse.ok) {
                         const manifest = await manifestResponse.json();
+                        console.log('📁 Manifest loaded:', manifest.length, 'items');
+                        
                         svgFiles = manifest.map((item: any) => ({
                             name: item.name,
                             folder: item.folder,
                             download_url: `/logos/${item.folder}/${item.name}`,
                             content: undefined // Will be loaded when clicked
                         })).sort((a: SvgFile, b: SvgFile) => a.name.localeCompare(b.name));
+                        
+                        console.log('📁 Processed SVG files:', svgFiles.length);
                     }
                 } catch (e) {
-                    console.log('No manifest found, trying GitHub API fallback');
+                    console.log('❌ No manifest found, trying GitHub API fallback:', e);
                 }
                 
                 // Fallback to GitHub API if no local files or manifest
@@ -78,6 +87,7 @@ const FeedPage = () => {
                         .sort((a, b) => a.name.localeCompare(b.name));
                 }
 
+                console.log('🎨 Setting all SVG files:', svgFiles.length);
                 setAllSvgFiles(svgFiles);
                 
                 // Create categories
@@ -86,9 +96,13 @@ const FeedPage = () => {
                     id: folder.toLowerCase(),
                     name: folderTranslations[folder.toLowerCase()] || folder
                 })).sort((a, b) => a.name.localeCompare(b.name));
+                
+                console.log('📊 Categories created:', categoriesList.length);
                 setCategories(categoriesList);
+                
+                console.log('✅ Logo loading complete!');
             } catch (error) {
-                console.error('Error loading SVG files:', error);
+                console.error('❌ Error loading SVG files:', error);
             }
         };
 
@@ -133,10 +147,14 @@ const FeedPage = () => {
     };
 
     const renderIconsByCategory = () => {
+        console.log('🎨 Rendering icons by category. Categories:', categories.length, 'Filtered files:', filteredSvgFiles.length);
+        
         return categories.map(category => {
             const categoryFiles = filteredSvgFiles.filter(file => 
                 file.folder.toLowerCase() === category.id
             );
+            
+            console.log(`📁 Category ${category.name} (${category.id}):`, categoryFiles.length, 'files');
             
             if (categoryFiles.length === 0) return null;
 
