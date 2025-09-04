@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { SvgFile } from '../App';
+import type { SvgFile } from '@/types';
 import IconCard from './IconCard';
 import { folderTranslations } from '@/translations';
 import { Separator } from '@/components/ui/separator';

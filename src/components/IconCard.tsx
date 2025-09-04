@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import './icon-card.css';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { SvgFile } from '../App';
+import type { SvgFile } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface IconCardProps {

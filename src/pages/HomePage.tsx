@@ -3,7 +3,7 @@ import AllIconsSection from '../components/AllIconsSection';
 import CopyMessage from '../components/CopyMessage';
 import Sidebar from '../components/Sidebar';
 import { translations, folderTranslations } from '../translations';
-import type { Category } from '../components/CategoriesNav';
+import type { Category, SvgFile } from '@/types';
 
 const GITHUB_REPO = 'rolloutrf/logos';
 const isDev = (import.meta as any).env?.DEV;
@@ -11,13 +11,6 @@ const API_BASE = (import.meta as any).env?.VITE_API_BASE || (isDev ? '/github' :
 const GITHUB_HEADERS_BASE: HeadersInit = {
     'Accept': 'application/vnd.github+json',
 };
-
-export interface SvgFile {
-    name: string;
-    download_url: string;
-    folder: string;
-    content?: string;
-}
 
 // Helper for searching Russian translations
 function matchesRussianName(fileName: string, searchTerm: string): boolean {
