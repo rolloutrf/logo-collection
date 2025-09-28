@@ -1,84 +1,34 @@
-name: Build & Deploy to Yandex Object Storage
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
-  workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'
-
-permissions:
-  contents: read
-
-concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
-    env:
-      # ---- S3 / Yandex ----
-      S3_BUCKET: xn--c1apjb.xn--80avakjqg.xn--p1ai   # punycode для лого.роллаут.рф
-      S3_ENDPOINT: https://storage.yandexcloud.net
-
-      # ---- AWS creds из Repository secrets ----
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ru-central1
-      AWS_DEFAULT_REGION: ru-central1
-      AWS_EC2_METADATA_DISABLED: true
-
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Sync logos from rolloutrf/logos
-        run: npm run sync:logos
-
-      # Если у тебя Vite/CRA — оставь просто build
-      # Если Next с экспортом — убедиcь, что из build выходит ./dist (или поменяй путь ниже)
-      - name: Build
-        run: npm run build
-
-      # Папка артефактов. Для Vite обычно 'dist', для Next Export часто тоже 'out'.
-      # Если у тебя создаётся 'out' — замени DIST_DIR на 'out'
-      - name: Pick artifacts folder
-        id: dist
-        run: |
-          if [ -d "dist" ]; then echo "dir=dist" >> "$GITHUB_OUTPUT";
-          elif [ -d "out" ]; then echo "dir=out" >> "$GITHUB_OUTPUT";
-          else echo "❌ No dist/out folder found" && exit 1; fi
-
-      - name: Sanity check S3 auth
-        run: aws s3 ls "s3://$S3_BUCKET/" --endpoint-url "$S3_ENDPOINT" || exit 1
-
-      # Статика (не HTML) — длинный кэш + immutable
-      - name: Upload static assets (immutable)
-        run: |
-          aws s3 sync "${{ steps.dist.outputs.dir }}/" "s3://$S3_BUCKET/" \
-            --endpoint-url "$S3_ENDPOINT" \
-            --exclude "*.html" \
-            --cache-control "public, max-age=31536000, immutable" \
-            --acl public-read \
-            --delete
-
-      # HTML — без кэша
-      - name: Upload HTML (no-cache)
-        run: |
-          aws s3 sync "${{ steps.dist.outputs.dir }}/" "s3://$S3_BUCKET/" \
-            --endpoint-url "$S3_ENDPOINT" \
-            --exclude "*" \
-            --include "*.html" \
-            --cache-control "no-cache, no-store, must-revalidate" \
-            --acl public-read
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build
+      run: npm run build
+      
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist

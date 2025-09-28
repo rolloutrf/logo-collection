@@ -132,9 +132,10 @@ const FeedPage = () => {
             const scrollPosition = window.scrollY + 100;
 
             sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.offsetHeight;
-                const sectionId = section.id;
+                const element = section as HTMLElement;
+                const sectionTop = element.offsetTop;
+                const sectionHeight = element.offsetHeight;
+                const sectionId = element.id;
 
                 if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
                     setActiveCategory(sectionId);
@@ -229,6 +230,27 @@ const FeedPage = () => {
                     justify-content: space-between;
                     align-items: center;
                     margin-bottom: 24px;
+                }
+
+                .nav-links {
+                    display: flex;
+                    gap: 24px;
+                }
+
+                .nav-link {
+                    color: #bbbbbb;
+                    text-decoration: none;
+                    font-size: 16px;
+                    font-weight: 500;
+                    transition: color 0.2s ease;
+                }
+
+                .nav-link:hover {
+                    color: #000000;
+                }
+
+                .nav-link.active {
+                    color: #000000;
                 }
 
                 /* Search Input */
@@ -529,10 +551,14 @@ const FeedPage = () => {
             
             <main className="container">
                 <div className="header">
+                    <div className="nav-links">
+                        <a href="/" className="nav-link active">Логотипы</a>
+                        <a href="/банки" className="nav-link">Банки</a>
+                    </div>
                     <input 
                         type="text" 
                         className="search-input" 
-                        placeholder="Найти иконку..."
+                        placeholder="Найти логотип..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
