@@ -12,7 +12,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ categories, totalCount, activeCategoryId, onSearch }) => {
   return (
-    <aside className="fixed top-16 left-6 w-60">
+    <aside className="fixed top-16 left-6 w-60 lg:block hidden">
       <Card>
         <CardContent className="pt-4">
           <div className="mb-3">
