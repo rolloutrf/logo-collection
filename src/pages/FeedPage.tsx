@@ -27,6 +27,7 @@ const FeedPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
     const [copyMessageVisible, setCopyMessageVisible] = useState(false);
+    const [activeCategory, setActiveCategory] = useState<string>('');
 
     useEffect(() => {
         const loadLogos = async () => {
@@ -124,13 +125,36 @@ const FeedPage = () => {
             : `Векторная база логотипов (${allSvgFiles.length})`;
     }, [searchTerm, allSvgFiles]);
 
+    // Обработчик скролла для выделения активной категории
+    useEffect(() => {
+        const handleScroll = () => {
+            const sections = document.querySelectorAll('.category-section');
+            const scrollPosition = window.scrollY + 100;
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                const sectionId = section.id;
+
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    setActiveCategory(sectionId);
+                }
+            });
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        handleScroll(); // Вызываем сразу для установки начального состояния
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [filteredSvgFiles]);
+
     const handleIconClick = async (file: SvgFile) => {
         try {
-            let svgContent = file.content;
-            if (!svgContent) {
-                const response = await fetch(file.download_url);
-                svgContent = await response.text();
+            const response = await fetch(file.download_url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            const svgContent = await response.text();
             await navigator.clipboard.writeText(svgContent);
             setCopyMessageVisible(true);
             setTimeout(() => setCopyMessageVisible(false), 2000);
@@ -140,6 +164,7 @@ const FeedPage = () => {
     };
 
     const scrollToCategory = (categoryId: string) => {
+        setActiveCategory(categoryId);
         const element = document.getElementById(categoryId);
         if (element) {
             element.scrollIntoView({ behavior: 'smooth' });
@@ -170,11 +195,7 @@ const FeedPage = () => {
                                 title={`Click to copy ${file.name}`}
                             >
                                 <div className="svg-container">
-                                    {file.content ? (
-                                        <div dangerouslySetInnerHTML={{ __html: file.content }} />
-                                    ) : (
-                                        <img src={file.download_url} alt={file.name} />
-                                    )}
+                                    <img src={file.download_url} alt={file.name} />
                                 </div>
                             </div>
                         ))}
@@ -185,7 +206,7 @@ const FeedPage = () => {
     };
 
     return (
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", background: '#EEEEEE', minHeight: '100vh' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", background: '#EEEEEE', minHeight: '100vh', height: '100vh', overflow: 'auto' }}>
             <style>{`
                 /* Reset */
                 h1, h2, h3, h4, h5, h6, p, ul, li {
@@ -200,6 +221,7 @@ const FeedPage = () => {
                     padding: 32px 0 0;
                     box-sizing: border-box;
                     position: relative;
+                    min-height: 100vh;
                 }
 
                 .header {
@@ -233,6 +255,11 @@ const FeedPage = () => {
                 .category-section {
                     margin-bottom: 40px;
                 }
+                
+                .category-section:last-child {
+                    margin-bottom: 0;
+                    padding-bottom: 20px;
+                }
 
                 .category-title {
                     font-weight: 400;
@@ -250,6 +277,7 @@ const FeedPage = () => {
                     gap: 0;
                     width: 900px;
                     margin: 0 auto;
+                    margin-bottom: 0;
                 }
 
                 .icon-card {
@@ -524,7 +552,7 @@ const FeedPage = () => {
                     {categories.map(category => (
                         <div
                             key={category.id}
-                            className="category-link"
+                            className={`category-link ${activeCategory === category.id ? 'active' : ''}`}
                             onClick={() => scrollToCategory(category.id)}
                         >
                             {category.name}

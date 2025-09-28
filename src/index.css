@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100%;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100%;
+  min-height: 100vh;
+  position: relative;
+  font-family: 'JetBrains Mono', monospace;
+  background: #EEEEEE;
+  overflow-x: hidden;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -70,6 +94,10 @@
   * {
     border-color: hsl(var(--border));
   }
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -80,25 +108,32 @@
 
 /* Typography defaults inspired by shadcn/ui */
 @layer base {
-  h1 { @apply scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl; }
-  h2 { @apply scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0; }
-  h3 { @apply scroll-m-20 text-2xl font-semibold tracking-tight; }
-  h4 { @apply scroll-m-20 text-xl font-semibold tracking-tight; }
+  h1 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.025em; }
+  h2 { font-size: 1.875rem; font-weight: 600; letter-spacing: -0.025em; }
+  h3 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.025em; }
+  h4 { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.025em; }
 
-  p { @apply leading-7; }
-  a { @apply text-primary underline-offset-4 hover:underline; }
-  small { @apply text-sm font-medium leading-none; }
-  strong { @apply font-semibold; }
+  p { line-height: 1.75; }
+  a { color: hsl(var(--primary)); text-decoration: underline; text-underline-offset: 4px; }
+  a:hover { text-decoration: underline; }
+  small { font-size: 0.875rem; font-weight: 500; line-height: 1; }
+  strong { font-weight: 600; }
 
-  blockquote { @apply mt-6 border-l-2 pl-6 italic text-muted-foreground; }
-  hr { @apply my-4 border-border md:my-8; }
+  blockquote { margin-top: 1.5rem; border-left: 2px solid hsl(var(--border)); padding-left: 1.5rem; font-style: italic; color: hsl(var(--muted-foreground)); }
+  hr { margin: 1rem 0; border-color: hsl(var(--border)); }
 
-  ul { @apply my-6 ml-6 list-disc; }
-  ol { @apply my-6 ml-6 list-decimal; }
-  li { @apply mt-2; }
+  ul { margin: 1.5rem 0 1.5rem 1.5rem; list-style-type: disc; }
+  ol { margin: 1.5rem 0 1.5rem 1.5rem; list-style-type: decimal; }
+  li { margin-top: 0.5rem; }
 
-  code { @apply relative rounded bg-muted px-1 py-0.5 font-mono text-sm; }
+  code { position: relative; border-radius: 0.375rem; background-color: hsl(var(--muted)); padding: 0.125rem 0.25rem; font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace; font-size: 0.875rem; }
   pre {
-    @apply mb-4 mt-6 overflow-x-auto rounded-lg border bg-muted p-4;
+    margin-bottom: 1rem; margin-top: 1.5rem; overflow-x: auto; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background-color: hsl(var(--muted)); padding: 1rem;
   }
+}
+
+/* Force reset for body margins - highest specificity */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
 }
