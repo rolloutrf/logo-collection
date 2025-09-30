@@ -5,9 +5,12 @@ import './index.css'
 import App from './App.tsx'
 import { ThemeProvider } from './components/theme-provider'
 
+const rawBase = (import.meta as any).env?.BASE_URL || '/'
+const basename = rawBase === '/' ? '' : String(rawBase).replace(/\/+$/, '')
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename={(import.meta as any).env?.BASE_URL}>
+    <BrowserRouter basename={basename}>
       <ThemeProvider>
         <App />
       </ThemeProvider>
