@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import type { SvgFile } from '@/types';
 import { translations, folderTranslations } from '@/translations';
 
@@ -563,8 +564,8 @@ const FeedPage = () => {
                         </svg>
                     </a>
                     <div className="nav-links">
-                        <a href="/" className="nav-link active">Логотипы</a>
-                        <a href="/банки" className="nav-link">Банки</a>
+                        <Link to="/" className="nav-link active">Логотипы</Link>
+                        <Link to="/банки" className="nav-link">Банки</Link>
                     </div>
                     <input 
                         type="text" 

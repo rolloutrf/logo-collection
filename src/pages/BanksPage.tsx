@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 interface Bank {
     bankName: string;
@@ -371,8 +372,8 @@ const BanksPage = () => {
                         </svg>
                     </a>
                     <div className="nav-links">
-                        <a href="/" className="nav-link">Логотипы</a>
-                        <a href="/банки" className="nav-link active">Банки</a>
+                        <Link to="/" className="nav-link">Логотипы</Link>
+                        <Link to="/банки" className="nav-link active">Банки</Link>
                     </div>
                     <input 
                         type="text" 
