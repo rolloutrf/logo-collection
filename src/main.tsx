@@ -7,7 +7,7 @@ import { ThemeProvider } from './components/theme-provider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={(import.meta as any).env?.BASE_URL}>
       <ThemeProvider>
         <App />
       </ThemeProvider>
