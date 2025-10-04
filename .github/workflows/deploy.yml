@@ -39,4 +39,4 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-        ~/.local/bin/aws s3 sync ./dist s3://лого.роллаут.рф --region ru-central1 --endpoint-url https://storage.yandexcloud.net
+        ~/.local/bin/aws s3 sync ./dist s3://${{ vars.BUCKET_NAME }} --region ${{ vars.AWS_REGION }} --endpoint-url ${{ vars.ENDPOINT_URL }}
