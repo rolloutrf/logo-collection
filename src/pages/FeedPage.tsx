@@ -3,6 +3,15 @@ import { Link } from 'react-router-dom';
 import type { SvgFile } from '@/types';
 import { translations, folderTranslations } from '@/translations';
 
+interface Bank {
+    bankName: string;
+    logoURL: string;
+    schema: string;
+    package_name?: string;
+    webClientUrl?: string;
+    isWebClientActive?: string;
+}
+
 const GITHUB_REPO = 'rolloutrf/logos';
 const GITHUB_HEADERS_BASE: HeadersInit = {
     'Accept': 'application/vnd.github+json',
@@ -25,17 +34,47 @@ function matchesRussianName(fileName: string, searchTerm: string): boolean {
 const FeedPage = () => {
     const [allSvgFiles, setAllSvgFiles] = useState<SvgFile[]>([]);
     const [filteredSvgFiles, setFilteredSvgFiles] = useState<SvgFile[]>([]);
+    const [banks, setBanks] = useState<Bank[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
     const [copyMessageVisible, setCopyMessageVisible] = useState(false);
     const [activeCategory, setActiveCategory] = useState<string>('');
 
     useEffect(() => {
+        const loadBanks = async () => {
+            try {
+                console.log('🏦 Starting to load banks from API...');
+                
+                let response;
+                try {
+                    response = await fetch('https://cdn.роллаут.рф/banks.json');
+                } catch (corsError) {
+                    response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://cdn.роллаут.рф/banks.json')}`);
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                const correctedBanks = data.dictionary.map((bank: Bank) => {
+                    if (bank.bankName === 'Тинькофф Банк') {
+                        return { ...bank, bankName: 'Т-Банк' };
+                    }
+                    return bank;
+                });
+                
+                setBanks(correctedBanks);
+                console.log('🏦 Loaded banks from API:', correctedBanks.length);
+            } catch (error) {
+                console.error('❌ Error loading banks:', error);
+            }
+        };
+
         const loadLogos = async () => {
             try {
                 console.log('🚀 Starting to load logos from GitHub...');
                 
-                // Load logos directly from GitHub API for automatic updates
                 const token = (import.meta as any).env?.VITE_GITHUB_TOKEN as string | undefined;
                 const headers: HeadersInit = {
                     ...GITHUB_HEADERS_BASE,
@@ -67,24 +106,34 @@ const FeedPage = () => {
                 console.log('🌐 Loaded SVG files from GitHub:', svgFiles.length);
                 setAllSvgFiles(svgFiles);
                 
-                // Create categories
-                const categoriesSet = new Set(svgFiles.map(file => file.folder));
-                const categoriesList = Array.from(categoriesSet).map(folder => ({
-                    id: folder.toLowerCase(),
-                    name: folderTranslations[folder.toLowerCase()] || folder
-                })).sort((a, b) => a.name.localeCompare(b.name));
-                
-                console.log('📊 Categories created:', categoriesList.length);
-                setCategories(categoriesList);
-                
                 console.log('✅ Logo loading complete!');
             } catch (error) {
                 console.error('❌ Error loading SVG files:', error);
             }
         };
 
-        loadLogos();
+        const loadData = async () => {
+            await Promise.all([loadLogos(), loadBanks()]);
+        };
+
+        loadData();
     }, []);
+
+    useEffect(() => {
+        if (allSvgFiles.length > 0 || banks.length > 0) {
+            const categoriesSet = new Set(allSvgFiles.map(file => file.folder));
+            if (banks.length > 0) {
+                categoriesSet.add('banks');
+            }
+            const categoriesList = Array.from(categoriesSet).map(folder => ({
+                id: folder.toLowerCase(),
+                name: folderTranslations[folder.toLowerCase()] || folder
+            })).sort((a, b) => a.name.localeCompare(b.name));
+            
+            console.log('📊 Categories created:', categoriesList.length);
+            setCategories(categoriesList);
+        }
+    }, [allSvgFiles, banks]);
 
     useEffect(() => {
         const searchLower = searchTerm.toLowerCase();
@@ -96,34 +145,54 @@ const FeedPage = () => {
                    matchesRussianName(file.name, searchTerm);
         });
         setFilteredSvgFiles(filtered);
+        
+        const totalCount = allSvgFiles.length + banks.length;
+        const filteredCount = filtered.length + (searchTerm ? banks.filter(bank => 
+            bank.bankName.toLowerCase().includes(searchLower)
+        ).length : banks.length);
+        
         document.title = searchTerm 
-            ? `Логотипы (${filtered.length}/${allSvgFiles.length})`
-            : `Векторная база логотипов (${allSvgFiles.length})`;
-    }, [searchTerm, allSvgFiles]);
+            ? `Логотипы (${filteredCount}/${totalCount})`
+            : `Векторная база логотипов (${totalCount})`;
+    }, [searchTerm, allSvgFiles, banks]);
 
     // Обработчик скролла для выделения активной категории
     useEffect(() => {
         const handleScroll = () => {
             const sections = document.querySelectorAll('.category-section');
-            const scrollPosition = window.scrollY + 100;
+            const scrollPosition = window.scrollY + 200;
 
-            sections.forEach(section => {
-                const element = section as HTMLElement;
-                const sectionTop = element.offsetTop;
-                const sectionHeight = element.offsetHeight;
-                const sectionId = element.id;
+            let currentSection = '';
 
+            // Проходим по всем секциям и находим ту, которая находится в видимой области
+            for (let i = 0; i < sections.length; i++) {
+                const section = sections[i] as HTMLElement;
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                const sectionId = section.id;
+
+                // Если позиция скролла находится в пределах секции
                 if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                    setActiveCategory(sectionId);
+                    currentSection = sectionId;
+                    break;
                 }
-            });
+                
+                // Если мы прошли секцию, но еще не дошли до следующей
+                if (scrollPosition >= sectionTop) {
+                    currentSection = sectionId;
+                }
+            }
+
+            if (currentSection) {
+                setActiveCategory(currentSection);
+            }
         };
 
         window.addEventListener('scroll', handleScroll);
         handleScroll(); // Вызываем сразу для установки начального состояния
 
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [filteredSvgFiles]);
+    }, [filteredSvgFiles, banks]);
 
     const handleIconClick = async (file: SvgFile) => {
         try {
@@ -140,6 +209,35 @@ const FeedPage = () => {
         }
     };
 
+    const handleBankClick = async (bank: Bank) => {
+        try {
+            const logoUrl = `https://cdn.роллаут.рф${bank.logoURL}`;
+            
+            let response;
+            try {
+                response = await fetch(logoUrl, {
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'image/svg+xml,image/*,*/*'
+                    }
+                });
+            } catch (corsError) {
+                response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(logoUrl)}`);
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const svgContent = await response.text();
+            await navigator.clipboard.writeText(svgContent);
+            setCopyMessageVisible(true);
+            setTimeout(() => setCopyMessageVisible(false), 2000);
+        } catch (error) {
+            console.error('Error copying bank SVG:', error);
+        }
+    };
+
     const scrollToCategory = (categoryId: string) => {
         setActiveCategory(categoryId);
         const element = document.getElementById(categoryId);
@@ -149,36 +247,78 @@ const FeedPage = () => {
     };
 
     const renderIconsByCategory = () => {
-        console.log('🎨 Rendering icons by category. Categories:', categories.length, 'Filtered files:', filteredSvgFiles.length);
+        console.log('🎨 Rendering icons by category. Categories:', categories.length, 'Filtered files:', filteredSvgFiles.length, 'Banks:', banks.length);
         
         return categories.map(category => {
-            const categoryFiles = filteredSvgFiles.filter(file => 
-                file.folder.toLowerCase() === category.id
-            );
-            
-            console.log(`📁 Category ${category.name} (${category.id}):`, categoryFiles.length, 'files');
-            
-            if (categoryFiles.length === 0) return null;
+            if (category.id === 'banks') {
+                const searchLower = searchTerm.toLowerCase();
+                const filteredBanks = banks.filter(bank => 
+                    bank.bankName.toLowerCase().includes(searchLower)
+                );
+                
+                console.log(`🏦 Category ${category.name} (${category.id}):`, filteredBanks.length, 'banks');
+                
+                if (filteredBanks.length === 0) return null;
 
-            return (
-                <div key={category.id} className="category-section" id={category.id}>
-                    <h2 className="category-title">{category.name}</h2>
-                    <div className="icons-grid">
-                        {categoryFiles.map((file, index) => (
-                            <div 
-                                key={`${file.folder}-${file.name}-${index}`}
-                                className="icon-card"
-                                onClick={() => handleIconClick(file)}
-                                title={`Click to copy ${file.name}`}
-                            >
-                                <div className="svg-container">
-                                    <img src={file.download_url} alt={file.name} />
+                return (
+                    <div key={category.id} className="category-section" id={category.id}>
+                        <h2 className="category-title">{category.name}</h2>
+                        <div className="icons-grid">
+                            {filteredBanks.map((bank, index) => (
+                                <div 
+                                    key={`bank-${bank.schema}-${index}`}
+                                    className="icon-card"
+                                    onClick={() => handleBankClick(bank)}
+                                    title={`Click to copy ${bank.bankName}`}
+                                >
+                                    <div className="svg-container">
+                                        <img 
+                                            src={`https://cdn.роллаут.рф${bank.logoURL}`} 
+                                            alt={`Логотип ${bank.bankName}`}
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(target.src)}`;
+                                                target.src = proxyUrl;
+                                                target.onerror = () => {
+                                                    target.style.display = 'none';
+                                                };
+                                            }}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            );
+                );
+            } else {
+                const categoryFiles = filteredSvgFiles.filter(file => 
+                    file.folder.toLowerCase() === category.id
+                );
+                
+                console.log(`📁 Category ${category.name} (${category.id}):`, categoryFiles.length, 'files');
+                
+                if (categoryFiles.length === 0) return null;
+
+                return (
+                    <div key={category.id} className="category-section" id={category.id}>
+                        <h2 className="category-title">{category.name}</h2>
+                        <div className="icons-grid">
+                            {categoryFiles.map((file, index) => (
+                                <div 
+                                    key={`${file.folder}-${file.name}-${index}`}
+                                    className="icon-card"
+                                    onClick={() => handleIconClick(file)}
+                                    title={`Click to copy ${file.name}`}
+                                >
+                                    <div className="svg-container">
+                                        <img src={file.download_url} alt={file.name} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            }
         });
     };
 
@@ -310,6 +450,11 @@ const FeedPage = () => {
                     max-width: 100%;
                     max-height: 100%;
                     transition: transform 0.2s ease;
+                }
+
+                .svg-container img[alt*="Логотип"] {
+                    width: 40px;
+                    height: 40px;
                 }
 
                 /* Copy Message */
@@ -564,8 +709,6 @@ const FeedPage = () => {
                         </svg>
                     </a>
                     <div className="nav-links">
-                        <Link to="/" className="nav-link active">Логотипы</Link>
-                        <Link to="/банки" className="nav-link">Банки</Link>
                     </div>
                     <input 
                         type="text" 
@@ -577,15 +720,29 @@ const FeedPage = () => {
                 </div>
                 
                 <nav className="categories-nav">
-                    {categories.map(category => (
-                        <div
-                            key={category.id}
-                            className={`category-link ${activeCategory === category.id ? 'active' : ''}`}
-                            onClick={() => scrollToCategory(category.id)}
-                        >
-                            {category.name}
-                        </div>
-                    ))}
+                    {categories.map(category => {
+                        let count = 0;
+                        if (category.id === 'banks') {
+                            const searchLower = searchTerm.toLowerCase();
+                            count = banks.filter(bank => 
+                                bank.bankName.toLowerCase().includes(searchLower)
+                            ).length;
+                        } else {
+                            count = filteredSvgFiles.filter(file => 
+                                file.folder.toLowerCase() === category.id
+                            ).length;
+                        }
+                        
+                        return (
+                            <div
+                                key={category.id}
+                                className={`category-link ${activeCategory === category.id ? 'active' : ''}`}
+                                onClick={() => scrollToCategory(category.id)}
+                            >
+                                {category.name} ({count})
+                            </div>
+                        );
+                    })}
                 </nav>
                 
                 <div className="content">

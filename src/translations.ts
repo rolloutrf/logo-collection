@@ -1,4 +1,5 @@
 export const folderTranslations: Record<string, string> = {
+    'banks': 'Банки',
     'finance': 'Финансы',
     'business': 'Бизнес',
     'charity': 'Благотворительность',
