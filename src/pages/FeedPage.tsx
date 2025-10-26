@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import type { SvgFile } from '@/types';
 import { translations, folderTranslations } from '@/translations';
 
