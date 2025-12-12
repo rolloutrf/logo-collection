@@ -16,7 +16,6 @@ const GITHUB_HEADERS_BASE: HeadersInit = {
     'Accept': 'application/vnd.github+json',
 };
 
-// Helper for searching Russian translations
 function matchesRussianName(fileName: string, searchTerm: string): boolean {
     const baseName = fileName.replace('.svg', '').toLowerCase();
     const searchLower = searchTerm.toLowerCase();
@@ -28,6 +27,36 @@ function matchesRussianName(fileName: string, searchTerm: string): boolean {
         );
     }
     return names.toLowerCase().includes(searchLower);
+}
+
+async function copyToClipboard(text: string): Promise<boolean> {
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (err) {
+            console.error('Clipboard API failed:', err);
+        }
+    }
+    
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        return successful;
+    } catch (err) {
+        console.error('Fallback copy failed:', err);
+        document.body.removeChild(textArea);
+        return false;
+    }
 }
 
 const FeedPage = () => {
@@ -200,11 +229,17 @@ const FeedPage = () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const svgContent = await response.text();
-            await navigator.clipboard.writeText(svgContent);
-            setCopyMessageVisible(true);
-            setTimeout(() => setCopyMessageVisible(false), 2000);
+            const success = await copyToClipboard(svgContent);
+            if (success) {
+                setCopyMessageVisible(true);
+                setTimeout(() => setCopyMessageVisible(false), 2000);
+            } else {
+                console.error('Failed to copy to clipboard');
+                alert('Не удалось скопировать в буфер обмена. Пожалуйста, скопируйте вручную.');
+            }
         } catch (error) {
             console.error('Error copying SVG:', error);
+            alert('Ошибка при копировании: ' + (error instanceof Error ? error.message : 'Неизвестная ошибка'));
         }
     };
 
@@ -229,11 +264,17 @@ const FeedPage = () => {
             }
             
             const svgContent = await response.text();
-            await navigator.clipboard.writeText(svgContent);
-            setCopyMessageVisible(true);
-            setTimeout(() => setCopyMessageVisible(false), 2000);
+            const success = await copyToClipboard(svgContent);
+            if (success) {
+                setCopyMessageVisible(true);
+                setTimeout(() => setCopyMessageVisible(false), 2000);
+            } else {
+                console.error('Failed to copy to clipboard');
+                alert('Не удалось скопировать в буфер обмена. Пожалуйста, скопируйте вручную.');
+            }
         } catch (error) {
             console.error('Error copying bank SVG:', error);
+            alert('Ошибка при копировании: ' + (error instanceof Error ? error.message : 'Неизвестная ошибка'));
         }
     };
 
