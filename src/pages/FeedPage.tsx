@@ -184,43 +184,82 @@ const FeedPage = () => {
             : `Векторная база логотипов (${totalCount})`;
     }, [searchTerm, allSvgFiles, banks]);
 
-    // Обработчик скролла для выделения активной категории
     useEffect(() => {
         const handleScroll = () => {
             const sections = document.querySelectorAll('.category-section');
-            const scrollPosition = window.scrollY + 200;
+            if (sections.length === 0) return;
 
+            const scrollContainer = document.querySelector('[style*="overflow: auto"]') as HTMLElement;
+            const scrollPosition = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
+            const offset = 150;
+            const viewportPosition = scrollPosition + offset;
+            
             let currentSection = '';
 
-            // Проходим по всем секциям и находим ту, которая находится в видимой области
             for (let i = 0; i < sections.length; i++) {
                 const section = sections[i] as HTMLElement;
                 const sectionTop = section.offsetTop;
-                const sectionHeight = section.offsetHeight;
+                const sectionBottom = sectionTop + section.offsetHeight;
                 const sectionId = section.id;
 
-                // Если позиция скролла находится в пределах секции
-                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                if (viewportPosition >= sectionTop && viewportPosition < sectionBottom) {
                     currentSection = sectionId;
                     break;
                 }
-                
-                // Если мы прошли секцию, но еще не дошли до следующей
-                if (scrollPosition >= sectionTop) {
-                    currentSection = sectionId;
+            }
+
+            if (!currentSection && sections.length > 0) {
+                for (let i = sections.length - 1; i >= 0; i--) {
+                    const section = sections[i] as HTMLElement;
+                    if (viewportPosition >= section.offsetTop) {
+                        currentSection = section.id;
+                        break;
+                    }
                 }
             }
 
-            if (currentSection) {
+            if (currentSection && currentSection !== activeCategory) {
                 setActiveCategory(currentSection);
             }
         };
 
-        window.addEventListener('scroll', handleScroll);
-        handleScroll(); // Вызываем сразу для установки начального состояния
+        const scrollContainer = document.querySelector('[style*="overflow: auto"]') || window;
+        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+        handleScroll();
 
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [filteredSvgFiles, banks]);
+        return () => {
+            scrollContainer.removeEventListener('scroll', handleScroll);
+        };
+    }, [filteredSvgFiles, banks, activeCategory]);
+
+    useEffect(() => {
+        const navElement = document.querySelector('.categories-nav') as HTMLElement;
+        if (!navElement) return;
+
+        const handleWheel = (e: WheelEvent) => {
+            const target = e.target as HTMLElement;
+            const nav = target.closest('.categories-nav') as HTMLElement | null;
+            if (!nav) return;
+            
+            const isAtTop = nav.scrollTop === 0;
+            const isAtBottom = nav.scrollTop + nav.clientHeight >= nav.scrollHeight - 1;
+            
+            if ((e.deltaY < 0 && isAtTop) || (e.deltaY > 0 && isAtBottom)) {
+                e.preventDefault();
+                const scrollContainer = document.querySelector('[style*="overflow: auto"]') as HTMLElement | null;
+                if (scrollContainer) {
+                    scrollContainer.scrollBy(0, e.deltaY);
+                } else {
+                    window.scrollBy(0, e.deltaY);
+                }
+            }
+        };
+
+        navElement.addEventListener('wheel', handleWheel, { passive: false });
+        return () => {
+            navElement.removeEventListener('wheel', handleWheel);
+        };
+    }, []);
 
     const handleIconClick = async (file: SvgFile) => {
         try {
@@ -315,6 +354,7 @@ const FeedPage = () => {
                                         <img 
                                             src={`https://cdn.роллаут.рф${bank.logoURL}`} 
                                             alt={`Логотип ${bank.bankName}`}
+                                            loading="lazy"
                                             onError={(e) => {
                                                 const target = e.target as HTMLImageElement;
                                                 const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(target.src)}`;
@@ -351,7 +391,7 @@ const FeedPage = () => {
                                     title={`Click to copy ${file.name}`}
                                 >
                                     <div className="svg-container">
-                                        <img src={file.download_url} alt={file.name} />
+                                        <img src={file.download_url} alt={file.name} loading="lazy" />
                                     </div>
                                 </div>
                             ))}
@@ -381,40 +421,10 @@ const FeedPage = () => {
                     min-height: 100vh;
                 }
 
-                .header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 24px;
-                }
-
-                .nav-links {
-                    display: flex;
-                    gap: 24px;
-                }
-
-                .nav-link {
-                    color: #bbbbbb;
-                    text-decoration: none;
-                    font-size: 16px;
-                    font-weight: 500;
-                    transition: color 0.2s ease;
-                }
-
-                .nav-link:hover {
-                    color: #000000;
-                }
-
-                .nav-link.active {
-                    color: #000000;
-                }
 
                 /* Search Input */
                 .search-input {
-                    position: fixed;
-                    left: 32px;
-                    top: 32px;
-                    width: 200px;
+                    width: 100%;
                     padding: 0;
                     border: none;
                     outline: none;
@@ -423,6 +433,7 @@ const FeedPage = () => {
                     line-height: 24px;
                     color: #bbbbbb;
                     background: transparent;
+                    margin-bottom: 16px;
                 }
 
                 .search-input:focus {
@@ -443,7 +454,7 @@ const FeedPage = () => {
                     font-weight: 400;
                     font-size: 24px;
                     line-height: 32px;
-                    margin-bottom: 24px;
+                    margin-bottom: 16px;
                     color: #000000;
                     font-family: 'JetBrains Mono', monospace;
                 }
@@ -492,7 +503,7 @@ const FeedPage = () => {
                     transition: transform 0.2s ease;
                 }
 
-                .svg-container img[alt*="Логотип"] {
+                .svg-container img {
                     width: 40px;
                     height: 40px;
                 }
@@ -553,13 +564,14 @@ const FeedPage = () => {
                 .categories-nav {
                     position: fixed;
                     left: 32px;
-                    top: 80px;
+                    top: 32px;
                     display: flex;
                     flex-direction: column;
                     gap: 8px;
-                    max-height: calc(100vh - 120px);
+                    max-height: calc(100vh - 64px);
                     overflow-y: auto;
                     padding-right: 8px;
+                    z-index: 100;
                 }
 
                 .categories-nav::-webkit-scrollbar {
@@ -587,6 +599,10 @@ const FeedPage = () => {
                     transition: color 0.2s ease;
                     white-space: nowrap;
                     cursor: pointer;
+                    user-select: none;
+                    -webkit-user-select: none;
+                    touch-action: manipulation;
+                    display: block;
                 }
 
                 .category-link:hover {
@@ -604,31 +620,11 @@ const FeedPage = () => {
                         padding: 0;
                     }
                     
-                    .header {
-                        width: 100%;
-                        display: flex;
-                        flex-direction: column;
-                        padding: 16px;
-                        padding-bottom: 0;
-                        box-sizing: border-box;
-                        gap: 12px;
-                        align-items: flex-start;
-                        margin-bottom: 0;
-                    }
-                    
-                    .nav-links {
-                        width: auto;
-                        display: flex;
-                        justify-content: flex-start;
-                        gap: 24px;
-                    }
-                    
                     .search-input {
-                        position: static;
                         width: 100%;
-                        margin: 0;
+                        margin: 0 0 16px 0;
                         padding: 0;
-                        text-align: left;
+                        box-sizing: border-box;
                     }
                     
                     .github-link {
@@ -685,22 +681,12 @@ const FeedPage = () => {
                 }
 
                 @media (max-width: 768px) {
-                    .header {
-                        flex-direction: column;
-                        gap: 12px;
-                        padding: 16px;
-                        padding-bottom: 0;
-                        margin-bottom: 0;
-                    }
-                    
-                    .nav-links {
-                        gap: 16px;
-                    }
-                    
                     .search-input {
                         width: 100%;
+                        margin: 0 0 16px 0;
                         padding: 0;
                         font-size: 16px;
+                        box-sizing: border-box;
                     }
                     
                     .github-link {
@@ -720,12 +706,6 @@ const FeedPage = () => {
                 }
 
                 @media (max-width: 480px) {
-                    .header {
-                        padding: 16px;
-                        padding-bottom: 0;
-                        margin-bottom: 0;
-                    }
-                    
                     .icons-grid {
                         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                     }
@@ -737,19 +717,18 @@ const FeedPage = () => {
             `}</style>
             
             <main className="container">
-                <div className="header">
-                    <a 
-                        href="https://github.com/rolloutrf/logos" 
-                        className="github-link" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                        </svg>
-                    </a>
-                    <div className="nav-links">
-                    </div>
+                <a 
+                    href="https://github.com/rolloutrf/logos" 
+                    className="github-link" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a>
+                
+                <nav className="categories-nav">
                     <input 
                         type="text" 
                         className="search-input" 
@@ -757,9 +736,6 @@ const FeedPage = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                </div>
-                
-                <nav className="categories-nav">
                     {categories.map(category => {
                         let count = 0;
                         if (category.id === 'banks') {
